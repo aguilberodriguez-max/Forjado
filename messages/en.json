@@ -27,6 +27,7 @@
     "forgotPasswordSuccess": "Password reset email sent. Check your inbox.",
     "submitLogin": "Log In",
     "submitSignup": "Create account",
+    "signupSuccess": "Account created! Please check your email to confirm your account.",
     "validation": {
       "required": "This field is required",
       "emailInvalid": "Enter a valid email address",
@@ -35,6 +36,7 @@
     },
     "errors": {
       "invalidCredentials": "Incorrect email or password. Try again.",
+      "emailNotRegistered": "No account found with that email. Please sign up first.",
       "signUpFailed": "Could not create an account. Check your details or try another email.",
       "generic": "Something went wrong. Please try again."
     },
@@ -92,12 +94,9 @@
     "brandName": "Forjado",
     "settings": "Settings",
     "fallbackOwner": "there",
-    "greeting": "Good {timeOfDay}, {ownerName}!",
-    "times": {
-      "morning": "morning",
-      "afternoon": "afternoon",
-      "evening": "evening"
-    },
+    "greetingMorning": "Good morning, {ownerName}!",
+    "greetingAfternoon": "Good afternoon, {ownerName}!",
+    "greetingEvening": "Good evening, {ownerName}!",
     "trialBanner": "Free Trial — {days} days left",
     "period": {
       "week": "This Week",

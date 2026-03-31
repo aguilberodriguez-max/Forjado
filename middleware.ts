@@ -25,6 +25,30 @@ function isAppLocale(segment: string): segment is AppLocale {
   return (APP_LOCALES as readonly string[]).includes(segment);
 }
 
+/** `/en`, `/es` — no `app/[locale]/page.tsx`, so send users to login. */
+function getLocaleOnlyPathname(pathname: string): AppLocale | null {
+  const segments = pathname.split("/").filter(Boolean);
+  if (segments.length === 1 && isAppLocale(segments[0])) {
+    return segments[0];
+  }
+  return null;
+}
+
+function copyIntlResponseCookiesAndCache(
+  from: NextResponse,
+  to: NextResponse,
+) {
+  from.cookies.getAll().forEach(({ name, value }) => {
+    to.cookies.set(name, value);
+  });
+  for (const header of ["Cache-Control", "Expires", "Pragma"] as const) {
+    const value = from.headers.get(header);
+    if (value) {
+      to.headers.set(header, value);
+    }
+  }
+}
+
 /**
  * Routes under `app/[locale]/(app)/…` use a locale prefix; public auth/share routes stay accessible.
  */
@@ -62,6 +86,15 @@ export async function middleware(request: NextRequest) {
 
   const response = intlMiddleware(request);
 
+  const localeOnly = getLocaleOnlyPathname(request.nextUrl.pathname);
+  if (localeOnly) {
+    const loginUrl = request.nextUrl.clone();
+    loginUrl.pathname = `/${localeOnly}/login`;
+    const redirectResponse = NextResponse.redirect(loginUrl);
+    copyIntlResponseCookiesAndCache(response, redirectResponse);
+    return redirectResponse;
+  }
+
   const supabase = createServerClient(url, anonKey, {
     cookies: {
       getAll() {
@@ -90,21 +123,7 @@ export async function middleware(request: NextRequest) {
     loginUrl.searchParams.set("next", request.nextUrl.pathname);
 
     const redirectResponse = NextResponse.redirect(loginUrl);
-    response.cookies.getAll().forEach(({ name, value }) => {
-      redirectResponse.cookies.set(name, value);
-    });
-    const cacheControl = response.headers.get("Cache-Control");
-    if (cacheControl) {
-      redirectResponse.headers.set("Cache-Control", cacheControl);
-    }
-    const expires = response.headers.get("Expires");
-    if (expires) {
-      redirectResponse.headers.set("Expires", expires);
-    }
-    const pragma = response.headers.get("Pragma");
-    if (pragma) {
-      redirectResponse.headers.set("Pragma", pragma);
-    }
+    copyIntlResponseCookiesAndCache(response, redirectResponse);
     return redirectResponse;
   }
 

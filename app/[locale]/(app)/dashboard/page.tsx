@@ -87,12 +87,16 @@ export default async function DashboardPage({
     ]);
 
   const profile = profileResult.data;
-  const ownerName = profile?.owner_name ?? t("fallbackOwner");
-  const firstName = ownerName.split(" ")[0] ?? ownerName;
-  const greeting = t("greeting", {
-    timeOfDay: t(`times.${getTimeOfDay(now.getHours())}`),
-    ownerName: firstName,
-  });
+  const ownerName =
+    profile?.owner_name?.trim() || t("fallbackOwner");
+  const timeKey = getTimeOfDay(now.getHours());
+  const greetingKey =
+    timeKey === "morning"
+      ? "greetingMorning"
+      : timeKey === "afternoon"
+        ? "greetingAfternoon"
+        : "greetingEvening";
+  const greeting = t(greetingKey, { ownerName });
 
   const revenue =
     paidInvoicesResult.data?.reduce((sum, row) => sum + Number(row.total ?? 0), 0) ?? 0;

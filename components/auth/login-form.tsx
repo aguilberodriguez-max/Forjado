@@ -20,6 +20,31 @@ type LoginValues = {
   confirmPassword: string;
 };
 
+function loginAuthErrorKey(
+  error: AuthError,
+): "invalidCredentials" | "emailNotRegistered" | "generic" {
+  const code = error.code?.toLowerCase();
+  if (code === "user_not_found" || code === "identity_not_found") {
+    return "emailNotRegistered";
+  }
+  const msg = error.message.toLowerCase();
+  if (
+    msg.includes("user not found") ||
+    msg.includes("user does not exist") ||
+    msg.includes("no user found") ||
+    msg.includes("email not registered")
+  ) {
+    return "emailNotRegistered";
+  }
+  if (
+    msg.includes("invalid login credentials") ||
+    msg.includes("invalid_credentials")
+  ) {
+    return "invalidCredentials";
+  }
+  return "generic";
+}
+
 function authErrorKey(error: AuthError): "invalidCredentials" | "signUpFailed" | "generic" {
   const msg = error.message.toLowerCase();
   if (
@@ -52,6 +77,8 @@ function AuthFormFields({ mode }: AuthFormFieldsProps) {
     string | null
   >(null);
   const [isSendingReset, setIsSendingReset] = useState(false);
+  const [signupSuccess, setSignupSuccess] = useState(false);
+  const [signupSubmitLocked, setSignupSubmitLocked] = useState(false);
 
   const loginSchema = useMemo(
     () =>
@@ -110,7 +137,7 @@ function AuthFormFields({ mode }: AuthFormFieldsProps) {
         password: data.password,
       });
       if (error) {
-        setAuthError(t(`errors.${authErrorKey(error)}`));
+        setAuthError(t(`errors.${loginAuthErrorKey(error)}`));
         return;
       }
       router.push(`/${locale}/dashboard`);
@@ -118,16 +145,17 @@ function AuthFormFields({ mode }: AuthFormFieldsProps) {
       return;
     }
 
+    setSignupSubmitLocked(true);
     const { error } = await supabase.auth.signUp({
       email: data.email,
       password: data.password,
     });
     if (error) {
+      setSignupSubmitLocked(false);
       setAuthError(t(`errors.${authErrorKey(error)}`));
       return;
     }
-    router.push(`/${locale}/onboarding`);
-    router.refresh();
+    setSignupSuccess(true);
   }
 
   async function onForgotPassword() {
@@ -153,6 +181,17 @@ function AuthFormFields({ mode }: AuthFormFieldsProps) {
     } finally {
       setIsSendingReset(false);
     }
+  }
+
+  if (mode === "signup" && signupSuccess) {
+    return (
+      <p
+        className="rounded-md border border-emerald-500/40 bg-emerald-500/10 px-3 py-3 text-center text-sm text-emerald-400"
+        role="status"
+      >
+        {t("signupSuccess")}
+      </p>
+    );
   }
 
   return (
@@ -255,7 +294,11 @@ function AuthFormFields({ mode }: AuthFormFieldsProps) {
 
       <Button
         type="submit"
-        disabled={form.formState.isSubmitting}
+        disabled={
+          mode === "signup"
+            ? signupSubmitLocked || form.formState.isSubmitting
+            : form.formState.isSubmitting
+        }
         className="h-11 w-full rounded-md border-0 bg-[#F26522] text-base font-medium text-white hover:bg-[#F26522]/90 disabled:opacity-60"
       >
         {mode === "login" ? t("submitLogin") : t("submitSignup")}
