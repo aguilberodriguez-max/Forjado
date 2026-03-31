@@ -1,0 +1,5 @@
+/**
+ * Stripe integration — placeholder.
+ */
+
+export {};

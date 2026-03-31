@@ -1,0 +1,386 @@
+{
+  "placeholder": {
+    "login": "Iniciar sesión",
+    "signup": "Registrarse",
+    "dashboard": "Panel",
+    "estimates": "Presupuestos",
+    "estimatesNew": "Nuevo presupuesto",
+    "invoices": "Facturas",
+    "clients": "Clientes",
+    "expenses": "Gastos",
+    "settings": "Ajustes",
+    "onboarding": "Configuración inicial"
+  },
+  "auth": {
+    "brandName": "Forjado",
+    "tabLogin": "Iniciar sesión",
+    "tabSignup": "Registrarse",
+    "tabsAriaLabel": "Registrarse o iniciar sesión",
+    "email": "Correo electrónico",
+    "emailPlaceholder": "tu@ejemplo.com",
+    "password": "Contraseña",
+    "passwordPlaceholder": "••••••••",
+    "confirmPassword": "Confirmar contraseña",
+    "confirmPasswordPlaceholder": "••••••••",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "submitLogin": "Iniciar sesión",
+    "submitSignup": "Crear cuenta",
+    "validation": {
+      "required": "Este campo es obligatorio",
+      "emailInvalid": "Introduce un correo válido",
+      "passwordMin": "La contraseña debe tener al menos 6 caracteres",
+      "passwordMismatch": "Las contraseñas no coinciden"
+    },
+    "errors": {
+      "invalidCredentials": "Correo o contraseña incorrectos. Inténtalo de nuevo.",
+      "signUpFailed": "No se pudo crear la cuenta. Revisa los datos o prueba con otro correo.",
+      "generic": "Algo salió mal. Inténtalo de nuevo."
+    },
+    "forgotPasswordPageTitle": "Restablecer contraseña",
+    "forgotPasswordPageHint": "El restablecimiento de contraseña estará disponible pronto."
+  },
+  "onboarding": {
+    "loading": "Cargando...",
+    "continue": "Continuar",
+    "errors": {
+      "missingIndustry": "Primero selecciona tu oficio.",
+      "saveFailed": "No pudimos guardar tu perfil. Inténtalo de nuevo."
+    },
+    "validation": {
+      "required": "Este campo es obligatorio",
+      "emailInvalid": "Introduce un correo válido"
+    },
+    "step1": {
+      "title": "¿A qué te dedicas?"
+    },
+    "step2": {
+      "title": "Perfil del negocio",
+      "businessName": "Nombre del negocio",
+      "fullName": "Nombre completo",
+      "phone": "Teléfono",
+      "email": "Correo electrónico",
+      "city": "Ciudad",
+      "state": "Estado",
+      "statePlaceholder": "Selecciona un estado",
+      "zip": "Código postal (opcional)"
+    },
+    "step3": {
+      "title": "¡Todo listo!",
+      "subtitle": "Tu prueba gratis de 14 días ha comenzado",
+      "goToDashboard": "Ir al Panel"
+    },
+    "industries": {
+      "cleaning": "Limpieza",
+      "handyman": "Handyman",
+      "autoDetailing": "Detallado de autos",
+      "landscaping": "Jardinería",
+      "beautyBarber": "Belleza/Barbería",
+      "foodCatering": "Comida/Catering",
+      "painting": "Pintura",
+      "moving": "Mudanzas",
+      "roofing": "Techado",
+      "autoSales": "Venta de Autos",
+      "retail": "Ropa / Tienda",
+      "cornerMarket": "Tienda / Mercado",
+      "construction": "Construcción",
+      "other": "Otro"
+    }
+  },
+  "dashboard": {
+    "brandName": "Forjado",
+    "settings": "Ajustes",
+    "fallbackOwner": "hola",
+    "greeting": "¡Buenos {timeOfDay}, {ownerName}!",
+    "times": {
+      "morning": "días",
+      "afternoon": "tardes",
+      "evening": "noches"
+    },
+    "trialBanner": "Prueba Gratis — quedan {days} días",
+    "period": {
+      "week": "Esta Semana",
+      "month": "Este Mes"
+    },
+    "kpi": {
+      "revenue": "Ingresos",
+      "expenses": "Gastos",
+      "profit": "Ganancia"
+    },
+    "outstanding": {
+      "title": "Facturas Pendientes",
+      "summary": "{count} abiertas • {total}"
+    },
+    "recentActivity": {
+      "title": "Actividad Reciente",
+      "empty": "Todavía no hay actividad reciente."
+    },
+    "quickActions": {
+      "title": "Acciones Rápidas",
+      "newEstimate": "Nuevo Presupuesto",
+      "addExpense": "Agregar Gasto"
+    },
+    "nav": {
+      "dashboard": "Panel",
+      "estimates": "Presupuestos",
+      "invoices": "Facturas",
+      "clients": "Clientes",
+      "more": "Más"
+    },
+    "loadError": "No pudimos cargar algunos datos del panel."
+  },
+  "estimates": {
+    "title": "Presupuestos",
+    "newEstimate": "Nuevo Presupuesto",
+    "searchPlaceholder": "Buscar por cliente o # de presupuesto",
+    "pullToRefresh": "Desliza para actualizar",
+    "refreshing": "Actualizando...",
+    "empty": "No hay presupuestos todavía",
+    "filters": {
+      "all": "Todos",
+      "draft": "Borrador",
+      "sent": "Enviado",
+      "accepted": "Aceptado",
+      "expired": "Vencido"
+    },
+    "status": {
+      "draft": "Borrador",
+      "sent": "Enviado",
+      "accepted": "Aceptado",
+      "expired": "Vencido",
+      "declined": "Rechazado"
+    },
+    "delete": {
+      "label": "Eliminar borrador",
+      "confirm": "¿Eliminar este presupuesto en borrador?",
+      "error": "No se pudo eliminar este presupuesto."
+    },
+    "nav": {
+      "dashboard": "Panel",
+      "estimates": "Presupuestos",
+      "invoices": "Facturas",
+      "clients": "Clientes",
+      "more": "Más"
+    }
+  },
+  "estimateNew": {
+    "title": "Nuevo Presupuesto",
+    "cancel": "Cancelar",
+    "saveDraft": "Guardar como Borrador",
+    "preview": "Vista previa",
+    "previewTitle": "Vista previa del presupuesto",
+    "previewBody": "{count} conceptos • {total}",
+    "taxRate": "Impuesto (%)",
+    "notes": "Notas",
+    "validUntil": "Válido hasta",
+    "clientSelector": {
+      "title": "Cliente",
+      "searchPlaceholder": "Buscar clientes",
+      "addNew": "Agregar cliente nuevo",
+      "useExisting": "Usar cliente existente",
+      "newName": "Nombre del cliente",
+      "newEmail": "Correo del cliente",
+      "newPhone": "Teléfono del cliente"
+    },
+    "lineItems": {
+      "title": "Conceptos",
+      "description": "Descripción",
+      "quantity": "Cantidad",
+      "price": "Precio",
+      "lineTotal": "Total de línea",
+      "add": "Agregar concepto",
+      "remove": "Eliminar"
+    },
+    "summary": {
+      "subtotal": "Subtotal",
+      "tax": "Impuesto",
+      "total": "Total"
+    },
+    "validation": {
+      "required": "Este campo es obligatorio",
+      "selectClient": "Selecciona un cliente o agrega uno nuevo",
+      "lineItemsMin": "Agrega al menos un concepto",
+      "quantity": "La cantidad debe ser mayor a 0",
+      "nonNegative": "El valor no puede ser negativo"
+    },
+    "errors": {
+      "saveClient": "No se pudo guardar el cliente.",
+      "saveEstimate": "No se pudo guardar el presupuesto."
+    }
+  },
+  "estimateDetail": {
+    "client": "Cliente",
+    "lineItems": "Conceptos",
+    "subtotal": "Subtotal",
+    "tax": "Impuesto",
+    "total": "Total",
+    "convertToInvoice": "Convertir a Factura",
+    "send": "Enviar",
+    "sendSheet": {
+      "title": "Enviar presupuesto",
+      "whatsapp": "WhatsApp",
+      "sms": "SMS",
+      "email": "Correo",
+      "copyLink": "Copiar enlace",
+      "emailSubject": "Presupuesto"
+    },
+    "loading": {
+      "convert": "Convirtiendo...",
+      "send": "Enviando..."
+    },
+    "errors": {
+      "convertFailed": "No se pudo convertir el presupuesto a factura.",
+      "sendFailed": "No se pudo enviar el presupuesto."
+    }
+  },
+  "invoices": {
+    "title": "Facturas",
+    "empty": "No hay facturas todavía",
+    "dueDate": "Vence",
+    "filters": {
+      "all": "Todas",
+      "draft": "Borrador",
+      "sent": "Enviada",
+      "paid": "Pagada",
+      "overdue": "Vencida"
+    },
+    "status": {
+      "draft": "Borrador",
+      "sent": "Enviada",
+      "paid": "Pagada",
+      "overdue": "Vencida",
+      "void": "Anulada"
+    },
+    "nav": {
+      "dashboard": "Panel",
+      "estimates": "Presupuestos",
+      "invoices": "Facturas",
+      "clients": "Clientes",
+      "more": "Más"
+    }
+  },
+  "invoiceDetail": {
+    "client": "Cliente",
+    "lineItems": "Conceptos",
+    "subtotal": "Subtotal",
+    "tax": "Impuesto",
+    "total": "Total",
+    "dueDate": "Fecha de vencimiento",
+    "sendInvoice": "Enviar Factura",
+    "edit": "Editar",
+    "cancelEdit": "Cancelar",
+    "saveEdit": "Guardar",
+    "sendReminder": "Enviar Recordatorio",
+    "markPaid": "Marcar como Pagada",
+    "downloadPdf": "Descargar PDF",
+    "taxRate": "Impuesto (%)",
+    "sendSheet": {
+      "title": "Enviar factura",
+      "whatsapp": "WhatsApp",
+      "sms": "SMS",
+      "copyLink": "Copiar enlace",
+      "linkCopied": "¡Enlace copiado!"
+    },
+    "markPaidSheet": {
+      "title": "Marcar como Pagada",
+      "date": "Fecha de pago",
+      "method": "Método de pago",
+      "confirm": "Confirmar",
+      "confirming": "Guardando..."
+    },
+    "paymentMethods": {
+      "cash": "Efectivo",
+      "zelle": "Zelle",
+      "venmo": "Venmo",
+      "check": "Cheque",
+      "card": "Tarjeta",
+      "other": "Otro"
+    },
+    "errors": {
+      "markPaid": "No se pudo marcar la factura como pagada.",
+      "saveEdit": "No se pudo actualizar la factura en borrador.",
+      "sendInvoice": "No se pudo enviar la factura."
+    },
+    "loading": {
+      "saveEdit": "Guardando...",
+      "send": "Enviando..."
+    }
+  },
+  "clients": {
+    "title": "Clientes",
+    "searchPlaceholder": "Buscar clientes",
+    "noJobs": "Sin trabajos aún",
+    "nav": {
+      "dashboard": "Panel",
+      "estimates": "Presupuestos",
+      "invoices": "Facturas",
+      "clients": "Clientes",
+      "more": "Más"
+    }
+  },
+  "expenses": {
+    "title": "Gastos",
+    "all": "Todos",
+    "newTitle": "Nuevo Gasto",
+    "amount": "Monto",
+    "description": "Descripción",
+    "save": "Guardar Gasto",
+    "saving": "Guardando...",
+    "categories": {
+      "supplies": "Suministros",
+      "fuel": "Gasolina",
+      "equipment": "Equipo",
+      "marketing": "Marketing",
+      "food": "Comida",
+      "insurance": "Seguro",
+      "subcontractor": "Subcontratista",
+      "rent": "Renta",
+      "phone": "Teléfono",
+      "other": "Otro"
+    },
+    "errors": {
+      "save": "No se pudo guardar el gasto."
+    },
+    "nav": {
+      "dashboard": "Panel",
+      "estimates": "Presupuestos",
+      "invoices": "Facturas",
+      "clients": "Clientes",
+      "more": "Más"
+    }
+  },
+  "bottomNav": {
+    "dashboard": "Panel",
+    "estimates": "Presupuestos",
+    "invoices": "Facturas",
+    "clients": "Clientes",
+    "expenses": "Gastos"
+  },
+  "settingsPage": {
+    "title": "Ajustes",
+    "businessProfile": {
+      "title": "Perfil del Negocio",
+      "edit": "Editar"
+    },
+    "language": {
+      "title": "Idioma",
+      "english": "English",
+      "spanish": "Español"
+    },
+    "subscription": {
+      "title": "Suscripción",
+      "trialDaysLeft": "Prueba Gratis — quedan {days} días",
+      "plan": {
+        "trialing": "En prueba",
+        "active": "Activa",
+        "past_due": "Pago vencido",
+        "canceled": "Cancelada",
+        "incomplete": "Incompleta"
+      }
+    },
+    "account": {
+      "title": "Cuenta"
+    },
+    "logOut": "Cerrar sesión",
+    "loggingOut": "Cerrando sesión..."
+  }
+}

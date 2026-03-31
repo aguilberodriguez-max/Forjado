@@ -1,0 +1,386 @@
+{
+  "placeholder": {
+    "login": "Login",
+    "signup": "Signup",
+    "dashboard": "Dashboard",
+    "estimates": "Estimates",
+    "estimatesNew": "New estimate",
+    "invoices": "Invoices",
+    "clients": "Clients",
+    "expenses": "Expenses",
+    "settings": "Settings",
+    "onboarding": "Onboarding"
+  },
+  "auth": {
+    "brandName": "Forjado",
+    "tabLogin": "Log In",
+    "tabSignup": "Sign Up",
+    "tabsAriaLabel": "Sign up or log in",
+    "email": "Email",
+    "emailPlaceholder": "you@example.com",
+    "password": "Password",
+    "passwordPlaceholder": "••••••••",
+    "confirmPassword": "Confirm Password",
+    "confirmPasswordPlaceholder": "••••••••",
+    "forgotPassword": "Forgot password?",
+    "submitLogin": "Log In",
+    "submitSignup": "Create account",
+    "validation": {
+      "required": "This field is required",
+      "emailInvalid": "Enter a valid email address",
+      "passwordMin": "Password must be at least 6 characters",
+      "passwordMismatch": "Passwords do not match"
+    },
+    "errors": {
+      "invalidCredentials": "Incorrect email or password. Try again.",
+      "signUpFailed": "Could not create an account. Check your details or try another email.",
+      "generic": "Something went wrong. Please try again."
+    },
+    "forgotPasswordPageTitle": "Reset password",
+    "forgotPasswordPageHint": "Password reset will be available soon."
+  },
+  "onboarding": {
+    "loading": "Loading...",
+    "continue": "Continue",
+    "errors": {
+      "missingIndustry": "Please select your trade first.",
+      "saveFailed": "We could not save your profile. Please try again."
+    },
+    "validation": {
+      "required": "This field is required",
+      "emailInvalid": "Enter a valid email address"
+    },
+    "step1": {
+      "title": "What's your trade?"
+    },
+    "step2": {
+      "title": "Business profile",
+      "businessName": "Business name",
+      "fullName": "Full name",
+      "phone": "Phone",
+      "email": "Email",
+      "city": "City",
+      "state": "State",
+      "statePlaceholder": "Select a state",
+      "zip": "ZIP (optional)"
+    },
+    "step3": {
+      "title": "You're all set!",
+      "subtitle": "Your 14-day free trial has started",
+      "goToDashboard": "Go to Dashboard"
+    },
+    "industries": {
+      "cleaning": "Cleaning",
+      "handyman": "Handyman",
+      "autoDetailing": "Auto Detailing",
+      "landscaping": "Landscaping",
+      "beautyBarber": "Beauty/Barber",
+      "foodCatering": "Food/Catering",
+      "painting": "Painting",
+      "moving": "Moving",
+      "roofing": "Roofing",
+      "autoSales": "Auto Sales",
+      "retail": "Retail / Clothing",
+      "cornerMarket": "Corner Market",
+      "construction": "Construction",
+      "other": "Other"
+    }
+  },
+  "dashboard": {
+    "brandName": "Forjado",
+    "settings": "Settings",
+    "fallbackOwner": "there",
+    "greeting": "Good {timeOfDay}, {ownerName}!",
+    "times": {
+      "morning": "morning",
+      "afternoon": "afternoon",
+      "evening": "evening"
+    },
+    "trialBanner": "Free Trial — {days} days left",
+    "period": {
+      "week": "This Week",
+      "month": "This Month"
+    },
+    "kpi": {
+      "revenue": "Revenue",
+      "expenses": "Expenses",
+      "profit": "Profit"
+    },
+    "outstanding": {
+      "title": "Outstanding Invoices",
+      "summary": "{count} open • {total}"
+    },
+    "recentActivity": {
+      "title": "Recent Activity",
+      "empty": "No recent activity yet."
+    },
+    "quickActions": {
+      "title": "Quick Actions",
+      "newEstimate": "New Estimate",
+      "addExpense": "Add Expense"
+    },
+    "nav": {
+      "dashboard": "Dashboard",
+      "estimates": "Estimates",
+      "invoices": "Invoices",
+      "clients": "Clients",
+      "more": "More"
+    },
+    "loadError": "We could not load some dashboard data."
+  },
+  "estimates": {
+    "title": "Estimates",
+    "newEstimate": "New Estimate",
+    "searchPlaceholder": "Search by client or estimate #",
+    "pullToRefresh": "Pull to refresh",
+    "refreshing": "Refreshing...",
+    "empty": "No estimates yet",
+    "filters": {
+      "all": "All",
+      "draft": "Draft",
+      "sent": "Sent",
+      "accepted": "Accepted",
+      "expired": "Expired"
+    },
+    "status": {
+      "draft": "Draft",
+      "sent": "Sent",
+      "accepted": "Accepted",
+      "expired": "Expired",
+      "declined": "Declined"
+    },
+    "delete": {
+      "label": "Delete draft",
+      "confirm": "Delete this draft estimate?",
+      "error": "Could not delete this estimate."
+    },
+    "nav": {
+      "dashboard": "Dashboard",
+      "estimates": "Estimates",
+      "invoices": "Invoices",
+      "clients": "Clients",
+      "more": "More"
+    }
+  },
+  "estimateNew": {
+    "title": "New Estimate",
+    "cancel": "Cancel",
+    "saveDraft": "Save as Draft",
+    "preview": "Preview",
+    "previewTitle": "Estimate preview",
+    "previewBody": "{count} line items • {total}",
+    "taxRate": "Tax rate (%)",
+    "notes": "Notes",
+    "validUntil": "Valid until",
+    "clientSelector": {
+      "title": "Client",
+      "searchPlaceholder": "Search clients",
+      "addNew": "Add new client",
+      "useExisting": "Use existing client",
+      "newName": "Client name",
+      "newEmail": "Client email",
+      "newPhone": "Client phone"
+    },
+    "lineItems": {
+      "title": "Line items",
+      "description": "Description",
+      "quantity": "Quantity",
+      "price": "Price",
+      "lineTotal": "Line total",
+      "add": "Add line item",
+      "remove": "Remove"
+    },
+    "summary": {
+      "subtotal": "Subtotal",
+      "tax": "Tax",
+      "total": "Total"
+    },
+    "validation": {
+      "required": "This field is required",
+      "selectClient": "Select a client or add a new one",
+      "lineItemsMin": "Add at least one line item",
+      "quantity": "Quantity must be greater than 0",
+      "nonNegative": "Value cannot be negative"
+    },
+    "errors": {
+      "saveClient": "Could not save the client.",
+      "saveEstimate": "Could not save the estimate."
+    }
+  },
+  "estimateDetail": {
+    "client": "Client",
+    "lineItems": "Line items",
+    "subtotal": "Subtotal",
+    "tax": "Tax",
+    "total": "Total",
+    "convertToInvoice": "Convert to Invoice",
+    "send": "Send",
+    "sendSheet": {
+      "title": "Send estimate",
+      "whatsapp": "WhatsApp",
+      "sms": "SMS",
+      "email": "Email",
+      "copyLink": "Copy Link",
+      "emailSubject": "Estimate"
+    },
+    "loading": {
+      "convert": "Converting...",
+      "send": "Sending..."
+    },
+    "errors": {
+      "convertFailed": "Could not convert estimate to invoice.",
+      "sendFailed": "Could not send estimate."
+    }
+  },
+  "invoices": {
+    "title": "Invoices",
+    "empty": "No invoices yet",
+    "dueDate": "Due",
+    "filters": {
+      "all": "All",
+      "draft": "Draft",
+      "sent": "Sent",
+      "paid": "Paid",
+      "overdue": "Overdue"
+    },
+    "status": {
+      "draft": "Draft",
+      "sent": "Sent",
+      "paid": "Paid",
+      "overdue": "Overdue",
+      "void": "Void"
+    },
+    "nav": {
+      "dashboard": "Dashboard",
+      "estimates": "Estimates",
+      "invoices": "Invoices",
+      "clients": "Clients",
+      "more": "More"
+    }
+  },
+  "invoiceDetail": {
+    "client": "Client",
+    "lineItems": "Line items",
+    "subtotal": "Subtotal",
+    "tax": "Tax",
+    "total": "Total",
+    "dueDate": "Due date",
+    "sendInvoice": "Send Invoice",
+    "edit": "Edit",
+    "cancelEdit": "Cancel",
+    "saveEdit": "Save",
+    "sendReminder": "Send Reminder",
+    "markPaid": "Mark as Paid",
+    "downloadPdf": "Download PDF",
+    "taxRate": "Tax rate (%)",
+    "sendSheet": {
+      "title": "Send invoice",
+      "whatsapp": "WhatsApp",
+      "sms": "SMS",
+      "copyLink": "Copy Link",
+      "linkCopied": "Link copied!"
+    },
+    "markPaidSheet": {
+      "title": "Mark as Paid",
+      "date": "Payment date",
+      "method": "Payment method",
+      "confirm": "Confirm",
+      "confirming": "Saving..."
+    },
+    "paymentMethods": {
+      "cash": "Cash",
+      "zelle": "Zelle",
+      "venmo": "Venmo",
+      "check": "Check",
+      "card": "Card",
+      "other": "Other"
+    },
+    "errors": {
+      "markPaid": "Could not mark invoice as paid.",
+      "saveEdit": "Could not update draft invoice.",
+      "sendInvoice": "Could not send invoice."
+    },
+    "loading": {
+      "saveEdit": "Saving...",
+      "send": "Sending..."
+    }
+  },
+  "clients": {
+    "title": "Clients",
+    "searchPlaceholder": "Search clients",
+    "noJobs": "No jobs yet",
+    "nav": {
+      "dashboard": "Dashboard",
+      "estimates": "Estimates",
+      "invoices": "Invoices",
+      "clients": "Clients",
+      "more": "More"
+    }
+  },
+  "expenses": {
+    "title": "Expenses",
+    "all": "All",
+    "newTitle": "New Expense",
+    "amount": "Amount",
+    "description": "Description",
+    "save": "Save Expense",
+    "saving": "Saving...",
+    "categories": {
+      "supplies": "Supplies",
+      "fuel": "Fuel",
+      "equipment": "Equipment",
+      "marketing": "Marketing",
+      "food": "Food",
+      "insurance": "Insurance",
+      "subcontractor": "Subcontractor",
+      "rent": "Rent",
+      "phone": "Phone",
+      "other": "Other"
+    },
+    "errors": {
+      "save": "Could not save expense."
+    },
+    "nav": {
+      "dashboard": "Dashboard",
+      "estimates": "Estimates",
+      "invoices": "Invoices",
+      "clients": "Clients",
+      "more": "More"
+    }
+  },
+  "bottomNav": {
+    "dashboard": "Dashboard",
+    "estimates": "Estimates",
+    "invoices": "Invoices",
+    "clients": "Clients",
+    "expenses": "Expenses"
+  },
+  "settingsPage": {
+    "title": "Settings",
+    "businessProfile": {
+      "title": "Business Profile",
+      "edit": "Edit"
+    },
+    "language": {
+      "title": "Language",
+      "english": "English",
+      "spanish": "Español"
+    },
+    "subscription": {
+      "title": "Subscription",
+      "trialDaysLeft": "Free Trial — {days} days left",
+      "plan": {
+        "trialing": "Trialing",
+        "active": "Active",
+        "past_due": "Past Due",
+        "canceled": "Canceled",
+        "incomplete": "Incomplete"
+      }
+    },
+    "account": {
+      "title": "Account"
+    },
+    "logOut": "Log Out",
+    "loggingOut": "Logging out..."
+  }
+}
