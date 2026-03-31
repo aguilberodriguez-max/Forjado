@@ -29,6 +29,11 @@ export interface BusinessProfile {
   city?: string;
   state?: string;
   zip_code?: string;
+  /** ISO 3166-1 alpha-2 */
+  country_code?: string;
+  /** ISO 4217 */
+  currency_code?: string;
+  currency_symbol?: string;
   language_preference: Language;
   default_tax_rate: number;
   onboarding_completed: boolean;
@@ -49,6 +54,8 @@ export interface Client {
   city?: string;
   state?: string;
   zip_code?: string;
+  /** ISO 3166-1 alpha-2 */
+  country_code?: string;
   notes?: string;
   is_archived: boolean;
   created_at: string;

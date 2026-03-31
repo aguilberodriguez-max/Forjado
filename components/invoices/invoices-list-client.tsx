@@ -8,6 +8,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 
 import { BottomNav } from "@/components/layout/bottom-nav";
+import type { MoneyFormat } from "@/lib/money";
 import type { InvoiceStatus } from "@/types";
 import { cn, formatCurrency } from "@/lib/utils";
 
@@ -22,6 +23,7 @@ type InvoiceListItem = {
 
 type InvoicesListClientProps = {
   invoices: InvoiceListItem[];
+  money: MoneyFormat;
 };
 
 const FILTERS: Array<"all" | "draft" | "sent" | "paid" | "overdue"> = [
@@ -40,7 +42,7 @@ function statusClass(status: InvoiceStatus): string {
   return "border-white/20 bg-white/10 text-[#A3A3A3]";
 }
 
-export function InvoicesListClient({ invoices }: InvoicesListClientProps) {
+export function InvoicesListClient({ invoices, money }: InvoicesListClientProps) {
   const t = useTranslations("invoices");
   const locale = useLocale();
   const [filter, setFilter] = useState<(typeof FILTERS)[number]>("all");
@@ -112,7 +114,7 @@ export function InvoicesListClient({ invoices }: InvoicesListClientProps) {
                   <span className="text-[#A3A3A3]">
                     {t("dueDate")}: {new Date(row.dueDate).toLocaleDateString(locale)}
                   </span>
-                  <span className="font-semibold">{formatCurrency(row.total)}</span>
+                  <span className="font-semibold">{formatCurrency(row.total, money)}</span>
                 </div>
               </Link>
             ))}

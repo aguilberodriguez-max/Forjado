@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 
 import { EstimatesListClient } from "@/components/estimates/estimates-list-client";
+import { moneyFromBusinessProfile } from "@/lib/money";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import type { EstimateStatus } from "@/types";
 
@@ -28,11 +29,21 @@ export default async function EstimatesPage({ params }: EstimatesPageProps) {
     redirect(`/${locale}/login`);
   }
 
-  const { data: estimateRows } = await supabase
-    .from("estimates")
-    .select("id,estimate_number,created_at,total,status,clients(name)")
-    .eq("user_id", user.id)
-    .order("created_at", { ascending: false });
+  const [estimateRes, profileRes] = await Promise.all([
+    supabase
+      .from("estimates")
+      .select("id,estimate_number,created_at,total,status,clients(name)")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("business_profiles")
+      .select("currency_code,currency_symbol")
+      .eq("user_id", user.id)
+      .maybeSingle(),
+  ]);
+
+  const estimateRows = estimateRes.data;
+  const money = moneyFromBusinessProfile(profileRes.data);
 
   const rows = (estimateRows ?? []) as EstimateRow[];
 
@@ -45,5 +56,5 @@ export default async function EstimatesPage({ params }: EstimatesPageProps) {
     status: row.status,
   }));
 
-  return <EstimatesListClient estimates={estimates} />;
+  return <EstimatesListClient estimates={estimates} money={money} />;
 }

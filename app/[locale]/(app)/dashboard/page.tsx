@@ -7,6 +7,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { differenceInCalendarDays, endOfMonth, endOfWeek, startOfMonth, startOfWeek } from "date-fns";
 
+import { moneyFromBusinessProfile } from "@/lib/money";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { formatCurrency } from "@/lib/utils";
 import { BottomNav } from "@/components/layout/bottom-nav";
@@ -57,7 +58,7 @@ export default async function DashboardPage({
     await Promise.all([
       supabase
         .from("business_profiles")
-        .select("owner_name,subscription_status,trial_ends_at")
+        .select("owner_name,subscription_status,trial_ends_at,currency_code,currency_symbol")
         .eq("user_id", user.id)
         .maybeSingle(),
       supabase
@@ -87,6 +88,7 @@ export default async function DashboardPage({
     ]);
 
   const profile = profileResult.data;
+  const money = moneyFromBusinessProfile(profile);
   const ownerName =
     profile?.owner_name?.trim() || t("fallbackOwner");
   const timeKey = getTimeOfDay(now.getHours());
@@ -170,18 +172,18 @@ export default async function DashboardPage({
         <section className="rounded-xl border border-white/10 bg-[#1A1A1A] p-4">
           <p className="text-sm text-[#A3A3A3]">{t("kpi.revenue")}</p>
           <p className="mt-2 text-3xl font-bold text-[#22C55E]">
-            {formatCurrency(revenue)}
+            {formatCurrency(revenue, money)}
           </p>
         </section>
 
         <section className="grid grid-cols-2 gap-3">
           <div className="rounded-xl border border-white/10 bg-[#1A1A1A] p-4">
             <p className="text-sm text-[#A3A3A3]">{t("kpi.expenses")}</p>
-            <p className="mt-2 text-xl font-semibold">{formatCurrency(expenses)}</p>
+            <p className="mt-2 text-xl font-semibold">{formatCurrency(expenses, money)}</p>
           </div>
           <div className="rounded-xl border border-white/10 bg-[#1A1A1A] p-4">
             <p className="text-sm text-[#A3A3A3]">{t("kpi.profit")}</p>
-            <p className="mt-2 text-xl font-semibold">{formatCurrency(profit)}</p>
+            <p className="mt-2 text-xl font-semibold">{formatCurrency(profit, money)}</p>
           </div>
         </section>
 
@@ -190,7 +192,7 @@ export default async function DashboardPage({
           <p className="mt-1 text-base">
             {t("outstanding.summary", {
               count: outstandingCount,
-              total: formatCurrency(outstandingTotal),
+              total: formatCurrency(outstandingTotal, money),
             })}
           </p>
         </section>

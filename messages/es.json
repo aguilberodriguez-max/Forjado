@@ -64,8 +64,10 @@
       "phone": "Teléfono",
       "email": "Correo electrónico",
       "city": "Ciudad",
-      "state": "Estado",
-      "statePlaceholder": "Selecciona un estado",
+      "country": "País",
+      "countryPlaceholder": "Selecciona un país",
+      "stateProvince": "Estado / Provincia",
+      "stateProvincePlaceholder": "Región o provincia",
       "zip": "Código postal (opcional)"
     },
     "step3": {
@@ -180,7 +182,10 @@
       "useExisting": "Usar cliente existente",
       "newName": "Nombre del cliente",
       "newEmail": "Correo del cliente",
-      "newPhone": "Teléfono del cliente"
+      "newPhone": "Teléfono del cliente",
+      "newCountry": "País",
+      "countryPlaceholder": "Selecciona un país",
+      "newStateProvince": "Estado / Provincia"
     },
     "lineItems": {
       "title": "Conceptos",
@@ -308,6 +313,17 @@
   },
   "clients": {
     "title": "Clientes",
+    "clientForm": {
+      "newTitle": "Nuevo cliente",
+      "editTitle": "Editar cliente",
+      "name": "Nombre",
+      "phone": "Teléfono",
+      "email": "Correo electrónico",
+      "street": "Dirección",
+      "save": "Guardar",
+      "saving": "Guardando...",
+      "saveError": "No se pudo guardar el cliente."
+    },
     "searchPlaceholder": "Buscar clientes",
     "noJobs": "Sin trabajos aún",
     "nav": {
@@ -361,6 +377,14 @@
     "businessProfile": {
       "title": "Perfil del Negocio",
       "edit": "Editar"
+    },
+    "businessProfileForm": {
+      "title": "Perfil del Negocio",
+      "edit": "Editar",
+      "save": "Guardar",
+      "cancel": "Cancelar",
+      "saving": "Guardando...",
+      "saveError": "No se pudo guardar el perfil. Inténtalo de nuevo."
     },
     "language": {
       "title": "Idioma",

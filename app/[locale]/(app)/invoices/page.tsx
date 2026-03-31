@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 
 import { InvoicesListClient } from "@/components/invoices/invoices-list-client";
+import { moneyFromBusinessProfile } from "@/lib/money";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import type { InvoiceStatus } from "@/types";
 
@@ -23,11 +24,21 @@ export default async function InvoicesPage({ params }: Props) {
   } = await supabase.auth.getUser();
   if (!user) redirect(`/${locale}/login`);
 
-  const { data } = await supabase
-    .from("invoices")
-    .select("id,invoice_number,due_date,total,status,clients(name)")
-    .eq("user_id", user.id)
-    .order("created_at", { ascending: false });
+  const [invoicesResult, profileResult] = await Promise.all([
+    supabase
+      .from("invoices")
+      .select("id,invoice_number,due_date,total,status,clients(name)")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("business_profiles")
+      .select("currency_code,currency_symbol")
+      .eq("user_id", user.id)
+      .maybeSingle(),
+  ]);
+
+  const { data } = invoicesResult;
+  const money = moneyFromBusinessProfile(profileResult.data);
 
   const rows = (data ?? []) as InvoiceRow[];
   const invoices = rows.map((row) => ({
@@ -39,5 +50,5 @@ export default async function InvoicesPage({ params }: Props) {
     status: row.status,
   }));
 
-  return <InvoicesListClient invoices={invoices} />;
+  return <InvoicesListClient invoices={invoices} money={money} />;
 }

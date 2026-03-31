@@ -54,7 +54,11 @@ export function ClientsListClient({ clients }: Props) {
         />
         <div className="space-y-2">
           {filtered.map((c) => (
-            <div key={c.id} className="flex items-center gap-3 rounded-xl border border-white/10 bg-[#1A1A1A] p-3">
+            <Link
+              key={c.id}
+              href={`/${locale}/clients/${c.id}/edit`}
+              className="flex items-center gap-3 rounded-xl border border-white/10 bg-[#1A1A1A] p-3"
+            >
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#F26522]/20 text-sm font-semibold text-[#F26522]">
                 {initials(c.name)}
               </div>
@@ -65,7 +69,7 @@ export function ClientsListClient({ clients }: Props) {
               <p className="text-xs text-[#A3A3A3]">
                 {c.lastJobDate ? new Date(c.lastJobDate).toLocaleDateString(locale) : t("noJobs")}
               </p>
-            </div>
+            </Link>
           ))}
         </div>
       </main>

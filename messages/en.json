@@ -64,9 +64,11 @@
       "phone": "Phone",
       "email": "Email",
       "city": "City",
-      "state": "State",
-      "statePlaceholder": "Select a state",
-      "zip": "ZIP (optional)"
+      "country": "Country",
+      "countryPlaceholder": "Select a country",
+      "stateProvince": "State / Province",
+      "stateProvincePlaceholder": "Region or province",
+      "zip": "ZIP / Postal code (optional)"
     },
     "step3": {
       "title": "You're all set!",
@@ -180,7 +182,10 @@
       "useExisting": "Use existing client",
       "newName": "Client name",
       "newEmail": "Client email",
-      "newPhone": "Client phone"
+      "newPhone": "Client phone",
+      "newCountry": "Country",
+      "countryPlaceholder": "Select a country",
+      "newStateProvince": "State / Province"
     },
     "lineItems": {
       "title": "Line items",
@@ -308,6 +313,17 @@
   },
   "clients": {
     "title": "Clients",
+    "clientForm": {
+      "newTitle": "New client",
+      "editTitle": "Edit client",
+      "name": "Name",
+      "phone": "Phone",
+      "email": "Email",
+      "street": "Street address",
+      "save": "Save",
+      "saving": "Saving...",
+      "saveError": "Could not save this client."
+    },
     "searchPlaceholder": "Search clients",
     "noJobs": "No jobs yet",
     "nav": {
@@ -361,6 +377,14 @@
     "businessProfile": {
       "title": "Business Profile",
       "edit": "Edit"
+    },
+    "businessProfileForm": {
+      "title": "Business Profile",
+      "edit": "Edit",
+      "save": "Save",
+      "cancel": "Cancel",
+      "saving": "Saving...",
+      "saveError": "Could not save your profile. Try again."
     },
     "language": {
       "title": "Language",

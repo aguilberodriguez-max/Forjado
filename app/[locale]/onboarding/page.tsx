@@ -23,7 +23,9 @@ import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
+import { CountrySelect } from "@/components/forms/country-select";
 import { Button } from "@/components/ui/button";
+import { getCountryByCode } from "@/lib/countries";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 import type { Industry, Language } from "@/types";
 import { cn } from "@/lib/utils";
@@ -49,59 +51,6 @@ const INDUSTRIES: Array<{
   { value: "other", icon: Briefcase, labelKey: "industries.other" },
 ];
 
-const US_STATES = [
-  "AL",
-  "AK",
-  "AZ",
-  "AR",
-  "CA",
-  "CO",
-  "CT",
-  "DE",
-  "FL",
-  "GA",
-  "HI",
-  "ID",
-  "IL",
-  "IN",
-  "IA",
-  "KS",
-  "KY",
-  "LA",
-  "ME",
-  "MD",
-  "MA",
-  "MI",
-  "MN",
-  "MS",
-  "MO",
-  "MT",
-  "NE",
-  "NV",
-  "NH",
-  "NJ",
-  "NM",
-  "NY",
-  "NC",
-  "ND",
-  "OH",
-  "OK",
-  "OR",
-  "PA",
-  "RI",
-  "SC",
-  "SD",
-  "TN",
-  "TX",
-  "UT",
-  "VT",
-  "VA",
-  "WA",
-  "WV",
-  "WI",
-  "WY",
-] as const;
-
 type Step = 1 | 2 | 3;
 
 type ProfileValues = {
@@ -110,6 +59,7 @@ type ProfileValues = {
   phone: string;
   email: string;
   city: string;
+  countryCode: string;
   state: string;
   zip: string;
 };
@@ -135,6 +85,7 @@ export default function OnboardingPage() {
           .min(1, t("validation.required"))
           .email(t("validation.emailInvalid")),
         city: z.string().min(1, t("validation.required")),
+        countryCode: z.string().min(1, t("validation.required")),
         state: z.string().min(1, t("validation.required")),
         zip: z.string(),
       }),
@@ -149,6 +100,7 @@ export default function OnboardingPage() {
       phone: "",
       email: "",
       city: "",
+      countryCode: "",
       state: "",
       zip: "",
     },
@@ -195,6 +147,12 @@ export default function OnboardingPage() {
 
     const languagePreference: Language = locale === "es" ? "es" : "en";
 
+    const country = getCountryByCode(values.countryCode);
+    if (!country) {
+      setSubmitError(t("errors.saveFailed"));
+      return;
+    }
+
     const { error } = await supabase.from("business_profiles").insert({
       user_id: userId,
       business_name: values.businessName,
@@ -204,6 +162,9 @@ export default function OnboardingPage() {
       city: values.city,
       state: values.state,
       zip_code: values.zip || null,
+      country_code: country.code,
+      currency_code: country.currencyCode,
+      currency_symbol: country.currencySymbol,
       industry,
       language_preference: languagePreference,
       onboarding_completed: true,
@@ -356,28 +317,41 @@ export default function OnboardingPage() {
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-sm text-[#A3A3A3]" htmlFor="state">
-                {t("step2.state")}
+              <label className="text-sm text-[#A3A3A3]" htmlFor="countryCode">
+                {t("step2.country")}
               </label>
-              <select
-                id="state"
-                className="h-11 w-full rounded-md border border-white/10 bg-[#1A1A1A] px-3 text-white outline-none focus-visible:ring-2 focus-visible:ring-[#F26522]/50"
-                defaultValue=""
-                {...form.register("state")}
-              >
-                <option value="" disabled>
-                  {t("step2.statePlaceholder")}
-                </option>
-                {US_STATES.map((state) => (
-                  <option key={state} value={state}>
-                    {state}
-                  </option>
-                ))}
-              </select>
-              {form.formState.errors.state ? (
-                <p className="text-sm text-[#EF4444]">{form.formState.errors.state.message}</p>
+              <CountrySelect
+                id="countryCode"
+                placeholder={t("step2.countryPlaceholder")}
+                value={form.watch("countryCode")}
+                onChange={(code) =>
+                  form.setValue("countryCode", code, { shouldValidate: true })
+                }
+                aria-invalid={Boolean(form.formState.errors.countryCode)}
+              />
+              {form.formState.errors.countryCode ? (
+                <p className="text-sm text-[#EF4444]">
+                  {form.formState.errors.countryCode.message}
+                </p>
               ) : null}
             </div>
+
+            {form.watch("countryCode") ? (
+              <div className="space-y-1.5">
+                <label className="text-sm text-[#A3A3A3]" htmlFor="state">
+                  {t("step2.stateProvince")}
+                </label>
+                <input
+                  id="state"
+                  className="h-11 w-full rounded-md border border-white/10 bg-[#1A1A1A] px-3 text-white outline-none focus-visible:ring-2 focus-visible:ring-[#F26522]/50"
+                  placeholder={t("step2.stateProvincePlaceholder")}
+                  {...form.register("state")}
+                />
+                {form.formState.errors.state ? (
+                  <p className="text-sm text-[#EF4444]">{form.formState.errors.state.message}</p>
+                ) : null}
+              </div>
+            ) : null}
 
             <div className="space-y-1.5">
               <label className="text-sm text-[#A3A3A3]" htmlFor="zip">

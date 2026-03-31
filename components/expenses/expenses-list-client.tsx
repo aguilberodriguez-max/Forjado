@@ -9,6 +9,7 @@ import { useMemo, useState } from "react";
 
 import { BottomNav } from "@/components/layout/bottom-nav";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
+import type { MoneyFormat } from "@/lib/money";
 import type { ExpenseCategory } from "@/types";
 import { formatCurrency } from "@/lib/utils";
 
@@ -22,6 +23,7 @@ type ExpenseRow = {
 
 type Props = {
   expenses: ExpenseRow[];
+  money: MoneyFormat;
 };
 
 const CATEGORIES: ExpenseCategory[] = [
@@ -37,7 +39,7 @@ const CATEGORIES: ExpenseCategory[] = [
   "other",
 ];
 
-export function ExpensesListClient({ expenses }: Props) {
+export function ExpensesListClient({ expenses, money }: Props) {
   const t = useTranslations("expenses");
   const locale = useLocale();
   const [filter, setFilter] = useState<ExpenseCategory | "all">("all");
@@ -120,7 +122,7 @@ export function ExpensesListClient({ expenses }: Props) {
                 <p className="text-xs text-[#A3A3A3]">{new Date(row.expenseDate).toLocaleDateString(locale)}</p>
               </div>
               <p className="text-sm font-semibold">
-                {formatCurrency(row.amount)}
+                {formatCurrency(row.amount, money)}
               </p>
             </div>
           ))}

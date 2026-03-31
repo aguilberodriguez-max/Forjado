@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 
 import { NewEstimateForm } from "@/components/estimates/new-estimate-form";
+import { moneyFromBusinessProfile } from "@/lib/money";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import type { Industry } from "@/types";
 
@@ -28,13 +29,15 @@ export default async function NewEstimatePage({ params }: NewEstimatePageProps) 
       .order("created_at", { ascending: false }),
     supabase
       .from("business_profiles")
-      .select("industry,default_tax_rate")
+      .select("industry,default_tax_rate,country_code,currency_code,currency_symbol")
       .eq("user_id", user.id)
       .maybeSingle(),
   ]);
 
   const industry = (profileResult.data?.industry ?? "other") as Industry;
   const defaultTaxRate = Number(profileResult.data?.default_tax_rate ?? 0);
+  const money = moneyFromBusinessProfile(profileResult.data);
+  const defaultCountryCode = profileResult.data?.country_code ?? "US";
 
   return (
     <NewEstimateForm
@@ -42,6 +45,8 @@ export default async function NewEstimatePage({ params }: NewEstimatePageProps) 
       industry={industry}
       clients={clientsResult.data ?? []}
       defaultTaxRate={defaultTaxRate}
+      money={money}
+      defaultCountryCode={defaultCountryCode}
     />
   );
 }

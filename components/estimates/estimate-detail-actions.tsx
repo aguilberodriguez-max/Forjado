@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
+import type { MoneyFormat } from "@/lib/money";
 import type { LineItem, SendChannel } from "@/types";
 import { formatCurrency } from "@/lib/utils";
 
@@ -21,6 +22,7 @@ type EstimateDetailActionsProps = {
   taxAmount: number;
   notesClient?: string | null;
   publicToken: string;
+  money: MoneyFormat;
 };
 
 export function EstimateDetailActions({
@@ -35,6 +37,7 @@ export function EstimateDetailActions({
   taxAmount,
   notesClient,
   publicToken,
+  money,
 }: EstimateDetailActionsProps) {
   const t = useTranslations("estimateDetail");
   const locale = useLocale();
@@ -105,7 +108,7 @@ export function EstimateDetailActions({
     setIsSending(via);
     const appBase = typeof window !== "undefined" ? window.location.origin : "";
     const publicUrl = `${appBase}/${locale}/e/${publicToken}`;
-    const currencyTotal = formatCurrency(total);
+    const currencyTotal = formatCurrency(total, money);
     const text = `${estimateNumber} - ${currencyTotal}\n${publicUrl}`;
 
     try {

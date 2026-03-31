@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
+import type { MoneyFormat } from "@/lib/money";
 import type { InvoiceStatus, LineItem, PaymentMethod, SendChannel } from "@/types";
 import { formatCurrency } from "@/lib/utils";
 
@@ -18,8 +19,18 @@ type Props = {
   total: number;
   publicToken: string;
   businessName: string;
+  businessAddressLines: string[];
   lineItems: LineItem[];
   taxRate: number;
+  money: MoneyFormat;
+  pdfLabels: {
+    subtotal: string;
+    tax: string;
+    total: string;
+    lineItems: string;
+    client: string;
+    dueDate: string;
+  };
 };
 
 export function InvoiceDetailActions({
@@ -32,8 +43,11 @@ export function InvoiceDetailActions({
   total,
   publicToken,
   businessName,
+  businessAddressLines,
   lineItems,
   taxRate,
+  money,
+  pdfLabels,
 }: Props) {
   const t = useTranslations("invoiceDetail");
   const locale = useLocale();
@@ -50,6 +64,7 @@ export function InvoiceDetailActions({
   const [editableItems, setEditableItems] = useState<LineItem[]>(lineItems);
   const [error, setError] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
+  const [pdfLoading, setPdfLoading] = useState(false);
 
   const subtotal = editableItems.reduce((sum, row) => sum + Number(row.line_total ?? 0), 0);
   const taxAmount = subtotal * (Number(editableTaxRate || 0) / 100);
@@ -128,12 +143,52 @@ export function InvoiceDetailActions({
     return updateError;
   }
 
+  async function downloadInvoicePdf() {
+    setPdfLoading(true);
+    try {
+      const [{ pdf }, { InvoicePdfDocument }] = await Promise.all([
+        import("@react-pdf/renderer"),
+        import("@/components/invoices/invoice-pdf-document"),
+      ]);
+      const dueFormatted = new Date(editableDueDate).toLocaleDateString(locale);
+      const blob = await pdf(
+        <InvoicePdfDocument
+          businessName={businessName}
+          businessAddressLines={businessAddressLines}
+          invoiceNumber={invoiceNumber}
+          clientName={clientName}
+          dueDateLabel={pdfLabels.dueDate}
+          dueDateFormatted={dueFormatted}
+          lineItems={editableItems}
+          subtotal={subtotal}
+          taxRate={Number(editableTaxRate || 0)}
+          taxAmount={taxAmount}
+          total={computedTotal || total}
+          money={money}
+          subtotalLabel={pdfLabels.subtotal}
+          taxLabel={pdfLabels.tax}
+          totalLabel={pdfLabels.total}
+          lineItemsHeading={pdfLabels.lineItems}
+          clientHeading={pdfLabels.client}
+        />,
+      ).toBlob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${invoiceNumber}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } finally {
+      setPdfLoading(false);
+    }
+  }
+
   async function handleSend(via: SendChannel) {
     setError(null);
     setSendLoading(via);
     const origin = typeof window !== "undefined" ? window.location.origin : "";
     const dueLabel = new Date(editableDueDate).toLocaleDateString(locale);
-    const totalLabel = formatCurrency(computedTotal || total);
+    const totalLabel = formatCurrency(computedTotal || total, money);
     const publicUrl = `${origin}/${locale}/i/${publicToken}`;
     const message = `${clientName}, ${businessName}: ${invoiceNumber} • ${totalLabel} • ${t(
       "dueDate",
@@ -274,8 +329,13 @@ export function InvoiceDetailActions({
         </div>
       ) : null}
       {currentStatus === "paid" ? (
-        <button className="h-11 w-full rounded-md border border-[#F26522] text-sm font-medium text-[#F26522]">
-          {t("downloadPdf")}
+        <button
+          type="button"
+          className="h-11 w-full rounded-md border border-[#F26522] text-sm font-medium text-[#F26522] disabled:opacity-50"
+          disabled={pdfLoading}
+          onClick={() => void downloadInvoicePdf()}
+        >
+          {pdfLoading ? "…" : t("downloadPdf")}
         </button>
       ) : null}
 

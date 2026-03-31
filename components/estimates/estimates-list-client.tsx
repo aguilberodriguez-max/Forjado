@@ -13,6 +13,7 @@ import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { BottomNav } from "@/components/layout/bottom-nav";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
+import type { MoneyFormat } from "@/lib/money";
 import type { EstimateStatus } from "@/types";
 import { cn, formatCurrency } from "@/lib/utils";
 
@@ -27,6 +28,7 @@ type EstimateListItem = {
 
 type EstimatesListClientProps = {
   estimates: EstimateListItem[];
+  money: MoneyFormat;
 };
 
 const FILTERS: Array<"all" | "draft" | "sent" | "accepted" | "expired"> = [
@@ -53,7 +55,7 @@ function statusClass(status: EstimateStatus): string {
   return "border-white/20 bg-white/10 text-[#A3A3A3]";
 }
 
-export function EstimatesListClient({ estimates }: EstimatesListClientProps) {
+export function EstimatesListClient({ estimates, money }: EstimatesListClientProps) {
   const t = useTranslations("estimates");
   const locale = useLocale();
   const router = useRouter();
@@ -233,7 +235,7 @@ export function EstimatesListClient({ estimates }: EstimatesListClientProps) {
                       <span className="text-[#A3A3A3]">
                         {new Date(item.createdAt).toLocaleDateString(locale)}
                       </span>
-                      <span className="font-semibold">{formatCurrency(item.total)}</span>
+                      <span className="font-semibold">{formatCurrency(item.total, money)}</span>
                     </div>
                   </Link>
                   {item.status === "draft" ? (

@@ -10,8 +10,10 @@ import { useMemo, useState } from "react";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 
+import { CountrySelect } from "@/components/forms/country-select";
 import { Button } from "@/components/ui/button";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
+import type { MoneyFormat } from "@/lib/money";
 import type { Industry } from "@/types";
 import { formatCurrency } from "@/lib/utils";
 
@@ -27,6 +29,8 @@ type NewEstimateFormProps = {
   industry: Industry;
   clients: ClientOption[];
   defaultTaxRate: number;
+  money: MoneyFormat;
+  defaultCountryCode: string;
 };
 
 type FormValues = {
@@ -35,6 +39,8 @@ type FormValues = {
   newClientName?: string;
   newClientEmail?: string;
   newClientPhone?: string;
+  newClientCountryCode?: string;
+  newClientState?: string;
   lineItems: Array<{
     description: string;
     quantity: number;
@@ -52,6 +58,8 @@ export function NewEstimateForm({
   industry,
   clients,
   defaultTaxRate,
+  money,
+  defaultCountryCode,
 }: NewEstimateFormProps) {
   const t = useTranslations("estimateNew");
   const locale = useLocale();
@@ -69,6 +77,8 @@ export function NewEstimateForm({
           newClientName: z.string().optional(),
           newClientEmail: z.string().optional(),
           newClientPhone: z.string().optional(),
+          newClientCountryCode: z.string().optional(),
+          newClientState: z.string().optional(),
           lineItems: z
             .array(
               z.object({
@@ -91,6 +101,20 @@ export function NewEstimateForm({
                 message: t("validation.required"),
               });
             }
+            if (!value.newClientCountryCode?.trim()) {
+              ctx.addIssue({
+                code: "custom",
+                path: ["newClientCountryCode"],
+                message: t("validation.required"),
+              });
+            }
+            if (!value.newClientState?.trim()) {
+              ctx.addIssue({
+                code: "custom",
+                path: ["newClientState"],
+                message: t("validation.required"),
+              });
+            }
           } else if (!value.clientId) {
             ctx.addIssue({
               code: "custom",
@@ -110,6 +134,8 @@ export function NewEstimateForm({
       newClientName: "",
       newClientEmail: "",
       newClientPhone: "",
+      newClientCountryCode: defaultCountryCode,
+      newClientState: "",
       lineItems: [{ description: "", quantity: 1, unitPrice: 0 }],
       taxRate: defaultTaxRate,
       notes: "",
@@ -159,6 +185,8 @@ export function NewEstimateForm({
           name: values.newClientName?.trim(),
           email: values.newClientEmail?.trim() || null,
           phone: values.newClientPhone?.trim() || null,
+          country_code: values.newClientCountryCode?.trim() || null,
+          state: values.newClientState?.trim() || null,
           is_archived: false,
         })
         .select("id")
@@ -254,7 +282,16 @@ export function NewEstimateForm({
             <button
               type="button"
               className="mt-3 text-sm text-[#F26522]"
-              onClick={() => setShowNewClient((prev) => !prev)}
+              onClick={() => {
+                setShowNewClient((prev) => {
+                  const next = !prev;
+                  if (next) {
+                    form.setValue("newClientCountryCode", defaultCountryCode);
+                    form.setValue("newClientState", "");
+                  }
+                  return next;
+                });
+              }}
             >
               {showNewClient ? t("clientSelector.useExisting") : t("clientSelector.addNew")}
             </button>
@@ -276,6 +313,36 @@ export function NewEstimateForm({
                   className="h-10 w-full rounded-md border border-white/10 bg-[#0A0A0A] px-3 text-sm text-white outline-none"
                   {...form.register("newClientPhone")}
                 />
+                <label className="block text-xs text-[#A3A3A3]">{t("clientSelector.newCountry")}</label>
+                <CountrySelect
+                  placeholder={t("clientSelector.countryPlaceholder")}
+                  value={form.watch("newClientCountryCode") ?? ""}
+                  onChange={(code) =>
+                    form.setValue("newClientCountryCode", code, { shouldValidate: true })
+                  }
+                  aria-invalid={Boolean(form.formState.errors.newClientCountryCode)}
+                />
+                {form.formState.errors.newClientCountryCode ? (
+                  <p className="text-xs text-[#EF4444]">
+                    {form.formState.errors.newClientCountryCode.message}
+                  </p>
+                ) : null}
+                {form.watch("newClientCountryCode") ? (
+                  <>
+                    <label className="block text-xs text-[#A3A3A3]">
+                      {t("clientSelector.newStateProvince")}
+                    </label>
+                    <input
+                      className="h-10 w-full rounded-md border border-white/10 bg-[#0A0A0A] px-3 text-sm text-white outline-none"
+                      {...form.register("newClientState")}
+                    />
+                    {form.formState.errors.newClientState ? (
+                      <p className="text-xs text-[#EF4444]">
+                        {form.formState.errors.newClientState.message}
+                      </p>
+                    ) : null}
+                  </>
+                ) : null}
                 {form.formState.errors.newClientName ? (
                   <p className="text-xs text-[#EF4444]">
                     {form.formState.errors.newClientName.message}
@@ -323,7 +390,7 @@ export function NewEstimateForm({
                     </div>
                     <div className="mt-2 flex items-center justify-between text-xs text-[#A3A3A3]">
                       <span>{t("lineItems.lineTotal")}</span>
-                      <span>{formatCurrency(lineTotal)}</span>
+                      <span>{formatCurrency(lineTotal, money)}</span>
                     </div>
                     {fields.length > 1 ? (
                       <button
@@ -384,15 +451,15 @@ export function NewEstimateForm({
           <section className="rounded-xl border border-white/10 bg-[#1A1A1A] p-3 text-sm">
             <div className="flex justify-between">
               <span className="text-[#A3A3A3]">{t("summary.subtotal")}</span>
-              <span>{formatCurrency(subtotal)}</span>
+              <span>{formatCurrency(subtotal, money)}</span>
             </div>
             <div className="mt-1 flex justify-between">
               <span className="text-[#A3A3A3]">{t("summary.tax")}</span>
-              <span>{formatCurrency(taxAmount)}</span>
+              <span>{formatCurrency(taxAmount, money)}</span>
             </div>
             <div className="mt-2 flex justify-between border-t border-white/10 pt-2 text-base font-semibold">
               <span>{t("summary.total")}</span>
-              <span>{formatCurrency(total)}</span>
+              <span>{formatCurrency(total, money)}</span>
             </div>
           </section>
 
@@ -427,7 +494,7 @@ export function NewEstimateForm({
             <p className="mt-1 text-[#A3A3A3]">
               {t("previewBody", {
                 count: safeLineItems.length,
-                total: formatCurrency(total),
+                total: formatCurrency(total, money),
               })}
             </p>
           </div>

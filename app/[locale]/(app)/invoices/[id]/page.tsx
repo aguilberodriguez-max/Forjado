@@ -2,6 +2,8 @@ import { getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
 
 import { InvoiceDetailActions } from "@/components/invoices/invoice-detail-actions";
+import { getCountryByCode } from "@/lib/countries";
+import { moneyFromBusinessProfile } from "@/lib/money";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import type { InvoiceStatus, LineItem } from "@/types";
 import { formatCurrency } from "@/lib/utils";
@@ -49,9 +51,30 @@ export default async function InvoiceDetailPage({ params }: Props) {
 
   const { data: profile } = await supabase
     .from("business_profiles")
-    .select("business_name")
+    .select(
+      "business_name,street_address,city,state,zip_code,country_code,currency_code,currency_symbol",
+    )
     .eq("user_id", user.id)
     .maybeSingle();
+
+  const money = moneyFromBusinessProfile(profile);
+  const countryMeta = profile?.country_code
+    ? getCountryByCode(profile.country_code)
+    : undefined;
+  const countryLabel =
+    countryMeta && locale.startsWith("es") ? countryMeta.nameEs : countryMeta?.nameEn;
+
+  const businessAddressLines: string[] = [];
+  if (profile?.street_address?.trim()) {
+    businessAddressLines.push(profile.street_address.trim());
+  }
+  const cityLine = [profile?.city, profile?.state, profile?.zip_code].filter(Boolean).join(", ");
+  if (cityLine) {
+    businessAddressLines.push(cityLine);
+  }
+  if (countryLabel) {
+    businessAddressLines.push(countryLabel);
+  }
 
   const items = invoice.line_items ?? [];
 
@@ -80,9 +103,9 @@ export default async function InvoiceDetailPage({ params }: Props) {
                 <p className="text-sm font-medium">{item.description}</p>
                 <div className="mt-1 flex justify-between text-xs text-[#A3A3A3]">
                   <span>
-                    {item.quantity} x {formatCurrency(Number(item.unit_price ?? 0))}
+                    {item.quantity} x {formatCurrency(Number(item.unit_price ?? 0), money)}
                   </span>
-                  <span>{formatCurrency(Number(item.line_total ?? 0))}</span>
+                  <span>{formatCurrency(Number(item.line_total ?? 0), money)}</span>
                 </div>
               </div>
             ))}
@@ -91,9 +114,9 @@ export default async function InvoiceDetailPage({ params }: Props) {
 
         <section className="rounded-xl border border-white/10 bg-[#1A1A1A] p-4 text-sm">
           <p className="mb-2 text-[#A3A3A3]">{t("dueDate")}: {new Date(invoice.due_date).toLocaleDateString(locale)}</p>
-          <div className="flex justify-between"><span className="text-[#A3A3A3]">{t("subtotal")}</span><span>{formatCurrency(Number(invoice.subtotal ?? 0))}</span></div>
-          <div className="mt-1 flex justify-between"><span className="text-[#A3A3A3]">{t("tax")}</span><span>{formatCurrency(Number(invoice.tax_amount ?? 0))}</span></div>
-          <div className="mt-2 flex justify-between border-t border-white/10 pt-2 text-base font-semibold"><span>{t("total")}</span><span>{formatCurrency(Number(invoice.total ?? 0))}</span></div>
+          <div className="flex justify-between"><span className="text-[#A3A3A3]">{t("subtotal")}</span><span>{formatCurrency(Number(invoice.subtotal ?? 0), money)}</span></div>
+          <div className="mt-1 flex justify-between"><span className="text-[#A3A3A3]">{t("tax")}</span><span>{formatCurrency(Number(invoice.tax_amount ?? 0), money)}</span></div>
+          <div className="mt-2 flex justify-between border-t border-white/10 pt-2 text-base font-semibold"><span>{t("total")}</span><span>{formatCurrency(Number(invoice.total ?? 0), money)}</span></div>
         </section>
 
         <InvoiceDetailActions
@@ -106,8 +129,18 @@ export default async function InvoiceDetailPage({ params }: Props) {
           total={Number(invoice.total ?? 0)}
           publicToken={invoice.public_token}
           businessName={profile?.business_name ?? "Forjado"}
+          businessAddressLines={businessAddressLines}
           lineItems={invoice.line_items ?? []}
           taxRate={Number(invoice.tax_rate ?? 0)}
+          money={money}
+          pdfLabels={{
+            subtotal: t("subtotal"),
+            tax: t("tax"),
+            total: t("total"),
+            lineItems: t("lineItems"),
+            client: t("client"),
+            dueDate: t("dueDate"),
+          }}
         />
       </div>
     </div>
