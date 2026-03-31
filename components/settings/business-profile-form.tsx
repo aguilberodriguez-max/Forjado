@@ -10,7 +10,6 @@ import { z } from "zod";
 import { CountrySelect } from "@/components/forms/country-select";
 import { Button } from "@/components/ui/button";
 import { countryDisplayName, getCountryByCode } from "@/lib/countries";
-import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 
 type Initial = {
   business_name: string;
@@ -18,7 +17,9 @@ type Initial = {
   phone: string;
   email: string;
   city: string | null;
+  /** Legacy column */
   state: string | null;
+  state_province: string | null;
   zip_code: string | null;
   country_code: string | null;
 };
@@ -71,36 +72,35 @@ export function BusinessProfileForm({ userId, initial }: Props) {
       email: initial.email,
       city: initial.city ?? "",
       countryCode: initial.country_code ?? "",
-      state: initial.state ?? "",
+      state: initial.state_province ?? initial.state ?? "",
       zip: initial.zip_code ?? "",
     },
   });
 
   async function onSubmit(values: FormValues) {
     setError(null);
-    const country = getCountryByCode(values.countryCode);
-    if (!country) {
+    if (!getCountryByCode(values.countryCode)) {
       setError(t("saveError"));
       return;
     }
-    const supabase = createBrowserSupabaseClient();
-    const { error: updateError } = await supabase
-      .from("business_profiles")
-      .update({
-        business_name: values.businessName,
-        owner_name: values.ownerName,
+
+    const res = await fetch("/api/business-profile", {
+      method: "PATCH",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        businessName: values.businessName,
+        ownerName: values.ownerName,
         phone: values.phone,
         email: values.email,
         city: values.city,
-        state: values.state,
-        zip_code: values.zip || null,
-        country_code: country.code,
-        currency_code: country.currencyCode,
-        currency_symbol: country.currencySymbol,
-      })
-      .eq("user_id", userId);
+        countryCode: values.countryCode,
+        stateProvince: values.state,
+        zip: values.zip,
+      }),
+    });
 
-    if (updateError) {
+    if (!res.ok) {
       setError(t("saveError"));
       return;
     }
@@ -131,7 +131,7 @@ export function BusinessProfileForm({ userId, initial }: Props) {
         <p className="text-sm text-[#A3A3A3]">{initial.phone || "—"}</p>
         <p className="text-sm text-[#A3A3A3]">{initial.email || "—"}</p>
         <p className="text-sm text-[#A3A3A3]">
-          {[initial.city, initial.state].filter(Boolean).join(", ") || "—"}
+          {[initial.city, initial.state_province ?? initial.state].filter(Boolean).join(", ") || "—"}
         </p>
         <p className="text-sm text-[#A3A3A3]">{countryLine}</p>
         {initial.zip_code ? (

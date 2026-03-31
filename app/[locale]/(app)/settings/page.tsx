@@ -27,7 +27,7 @@ export default async function SettingsPage({ params }: SettingsPageProps) {
   const { data: profile } = await supabase
     .from("business_profiles")
     .select(
-      "business_name,owner_name,phone,email,city,state,zip_code,country_code,subscription_status,trial_ends_at",
+      "business_name,owner_name,phone,email,city,state,state_province,zip_code,country_code,subscription_status,trial_ends_at",
     )
     .eq("user_id", user.id)
     .maybeSingle();
@@ -56,6 +56,7 @@ export default async function SettingsPage({ params }: SettingsPageProps) {
                 email: profile.email,
                 city: profile.city,
                 state: profile.state,
+                state_province: profile.state_province,
                 zip_code: profile.zip_code,
                 country_code: profile.country_code,
               }}

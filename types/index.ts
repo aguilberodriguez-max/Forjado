@@ -27,7 +27,9 @@ export interface BusinessProfile {
   email: string;
   street_address?: string;
   city?: string;
+  /** Legacy; prefer state_province */
   state?: string;
+  state_province?: string;
   zip_code?: string;
   /** ISO 3166-1 alpha-2 */
   country_code?: string;

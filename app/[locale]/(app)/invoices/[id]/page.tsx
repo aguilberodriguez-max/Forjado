@@ -52,7 +52,7 @@ export default async function InvoiceDetailPage({ params }: Props) {
   const { data: profile } = await supabase
     .from("business_profiles")
     .select(
-      "business_name,street_address,city,state,zip_code,country_code,currency_code,currency_symbol",
+      "business_name,street_address,city,state,state_province,zip_code,country_code,currency_code,currency_symbol",
     )
     .eq("user_id", user.id)
     .maybeSingle();
@@ -68,7 +68,8 @@ export default async function InvoiceDetailPage({ params }: Props) {
   if (profile?.street_address?.trim()) {
     businessAddressLines.push(profile.street_address.trim());
   }
-  const cityLine = [profile?.city, profile?.state, profile?.zip_code].filter(Boolean).join(", ");
+  const region = profile?.state_province ?? profile?.state;
+  const cityLine = [profile?.city, region, profile?.zip_code].filter(Boolean).join(", ");
   if (cityLine) {
     businessAddressLines.push(cityLine);
   }

@@ -160,7 +160,7 @@ export default function OnboardingPage() {
       phone: values.phone,
       email: values.email,
       city: values.city,
-      state: values.state,
+      state_province: values.state,
       zip_code: values.zip || null,
       country_code: country.code,
       currency_code: country.currencyCode,
