@@ -25,7 +25,7 @@ function isAppLocale(segment: string): segment is AppLocale {
   return (APP_LOCALES as readonly string[]).includes(segment);
 }
 
-/** `/en`, `/es` — no `app/[locale]/page.tsx`, so send users to login. */
+/** `/en`, `/es` — no index page; send users to login, onboarding (no profile), or dashboard. */
 function getLocaleOnlyPathname(pathname: string): AppLocale | null {
   const segments = pathname.split("/").filter(Boolean);
   if (segments.length === 1 && isAppLocale(segments[0])) {
@@ -47,6 +47,27 @@ function copyIntlResponseCookiesAndCache(
       to.headers.set(header, value);
     }
   }
+}
+
+/** Authenticated users without a business_profiles row must complete onboarding first. */
+function mustRedirectToOnboarding(
+  pathname: string,
+  hasProfile: boolean,
+  user: { id: string } | null,
+): AppLocale | null {
+  if (!user || hasProfile) {
+    return null;
+  }
+  const segments = pathname.split("/").filter(Boolean);
+  if (segments.length < 2 || !isAppLocale(segments[0])) {
+    return null;
+  }
+  const locale = segments[0];
+  const head = segments[1];
+  if (head === "onboarding" || head === "e" || head === "i") {
+    return null;
+  }
+  return locale;
 }
 
 /**
@@ -86,15 +107,6 @@ export async function middleware(request: NextRequest) {
 
   const response = intlMiddleware(request);
 
-  const localeOnly = getLocaleOnlyPathname(request.nextUrl.pathname);
-  if (localeOnly) {
-    const loginUrl = request.nextUrl.clone();
-    loginUrl.pathname = `/${localeOnly}/login`;
-    const redirectResponse = NextResponse.redirect(loginUrl);
-    copyIntlResponseCookiesAndCache(response, redirectResponse);
-    return redirectResponse;
-  }
-
   const supabase = createServerClient(url, anonKey, {
     cookies: {
       getAll() {
@@ -115,7 +127,43 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const { requiresAuth, locale } = getAuthGate(request.nextUrl.pathname);
+  let hasProfile = false;
+  if (user) {
+    const { data: profileRow } = await supabase
+      .from("business_profiles")
+      .select("id")
+      .eq("user_id", user.id)
+      .maybeSingle();
+    hasProfile = !!profileRow;
+  }
+
+  const pathname = request.nextUrl.pathname;
+
+  const localeOnly = getLocaleOnlyPathname(pathname);
+  if (localeOnly) {
+    const targetUrl = request.nextUrl.clone();
+    if (!user) {
+      targetUrl.pathname = `/${localeOnly}/login`;
+    } else if (!hasProfile) {
+      targetUrl.pathname = `/${localeOnly}/onboarding`;
+    } else {
+      targetUrl.pathname = `/${localeOnly}/dashboard`;
+    }
+    const redirectResponse = NextResponse.redirect(targetUrl);
+    copyIntlResponseCookiesAndCache(response, redirectResponse);
+    return redirectResponse;
+  }
+
+  const onboardingLocale = mustRedirectToOnboarding(pathname, hasProfile, user);
+  if (onboardingLocale) {
+    const onboardingUrl = request.nextUrl.clone();
+    onboardingUrl.pathname = `/${onboardingLocale}/onboarding`;
+    const redirectResponse = NextResponse.redirect(onboardingUrl);
+    copyIntlResponseCookiesAndCache(response, redirectResponse);
+    return redirectResponse;
+  }
+
+  const { requiresAuth, locale } = getAuthGate(pathname);
 
   if (requiresAuth && !user) {
     const loginUrl = request.nextUrl.clone();

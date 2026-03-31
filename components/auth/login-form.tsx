@@ -77,7 +77,6 @@ function AuthFormFields({ mode }: AuthFormFieldsProps) {
     string | null
   >(null);
   const [isSendingReset, setIsSendingReset] = useState(false);
-  const [signupSuccess, setSignupSuccess] = useState(false);
   const [signupSubmitLocked, setSignupSubmitLocked] = useState(false);
 
   const loginSchema = useMemo(
@@ -155,7 +154,8 @@ function AuthFormFields({ mode }: AuthFormFieldsProps) {
       setAuthError(t(`errors.${authErrorKey(error)}`));
       return;
     }
-    setSignupSuccess(true);
+    router.push(`/${locale}/onboarding`);
+    router.refresh();
   }
 
   async function onForgotPassword() {
@@ -181,17 +181,6 @@ function AuthFormFields({ mode }: AuthFormFieldsProps) {
     } finally {
       setIsSendingReset(false);
     }
-  }
-
-  if (mode === "signup" && signupSuccess) {
-    return (
-      <p
-        className="rounded-md border border-emerald-500/40 bg-emerald-500/10 px-3 py-3 text-center text-sm text-emerald-400"
-        role="status"
-      >
-        {t("signupSuccess")}
-      </p>
-    );
   }
 
   return (
