@@ -23,6 +23,8 @@
     "confirmPassword": "Confirmar contraseña",
     "confirmPasswordPlaceholder": "••••••••",
     "forgotPassword": "¿Olvidaste tu contraseña?",
+    "forgotPasswordSending": "Enviando...",
+    "forgotPasswordSuccess": "Se envió el correo para restablecer la contraseña. Revisa tu bandeja de entrada.",
     "submitLogin": "Iniciar sesión",
     "submitSignup": "Crear cuenta",
     "validation": {

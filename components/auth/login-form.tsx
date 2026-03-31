@@ -2,7 +2,6 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { type AuthError } from "@supabase/supabase-js";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
@@ -49,6 +48,10 @@ function AuthFormFields({ mode }: AuthFormFieldsProps) {
   const locale = useLocale();
   const router = useRouter();
   const [authError, setAuthError] = useState<string | null>(null);
+  const [forgotPasswordSuccess, setForgotPasswordSuccess] = useState<
+    string | null
+  >(null);
+  const [isSendingReset, setIsSendingReset] = useState(false);
 
   const loginSchema = useMemo(
     () =>
@@ -98,6 +101,7 @@ function AuthFormFields({ mode }: AuthFormFieldsProps) {
 
   async function onSubmit(data: LoginValues) {
     setAuthError(null);
+    setForgotPasswordSuccess(null);
     const supabase = createBrowserSupabaseClient();
 
     if (mode === "login") {
@@ -126,6 +130,31 @@ function AuthFormFields({ mode }: AuthFormFieldsProps) {
     router.refresh();
   }
 
+  async function onForgotPassword() {
+    setAuthError(null);
+    setForgotPasswordSuccess(null);
+
+    const isEmailValid = await form.trigger("email");
+    if (!isEmailValid) {
+      return;
+    }
+
+    const email = form.getValues("email");
+    const supabase = createBrowserSupabaseClient();
+    setIsSendingReset(true);
+
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email);
+      if (error) {
+        setAuthError(t("errors.generic"));
+        return;
+      }
+      setForgotPasswordSuccess(t("forgotPasswordSuccess"));
+    } finally {
+      setIsSendingReset(false);
+    }
+  }
+
   return (
     <form
       className="flex flex-col gap-4"
@@ -135,6 +164,11 @@ function AuthFormFields({ mode }: AuthFormFieldsProps) {
       {authError ? (
         <p className="rounded-md border border-[#EF4444]/40 bg-[#EF4444]/10 px-3 py-2 text-sm text-[#EF4444]">
           {authError}
+        </p>
+      ) : null}
+      {forgotPasswordSuccess ? (
+        <p className="rounded-md border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-400">
+          {forgotPasswordSuccess}
         </p>
       ) : null}
 
@@ -207,12 +241,14 @@ function AuthFormFields({ mode }: AuthFormFieldsProps) {
         <>
           <input type="hidden" {...form.register("confirmPassword")} />
           <div className="-mt-1 flex justify-end">
-            <Link
-              href={`/${locale}/forgot-password`}
+            <button
+              type="button"
+              onClick={onForgotPassword}
+              disabled={isSendingReset}
               className="text-sm font-medium text-[#F26522] underline-offset-4 hover:underline"
             >
-              {t("forgotPassword")}
-            </Link>
+              {isSendingReset ? t("forgotPasswordSending") : t("forgotPassword")}
+            </button>
           </div>
         </>
       )}

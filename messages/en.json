@@ -23,6 +23,8 @@
     "confirmPassword": "Confirm Password",
     "confirmPasswordPlaceholder": "••••••••",
     "forgotPassword": "Forgot password?",
+    "forgotPasswordSending": "Sending...",
+    "forgotPasswordSuccess": "Password reset email sent. Check your inbox.",
     "submitLogin": "Log In",
     "submitSignup": "Create account",
     "validation": {
