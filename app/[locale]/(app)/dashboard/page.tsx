@@ -10,22 +10,13 @@ import { differenceInCalendarDays, endOfMonth, endOfWeek, startOfMonth, startOfW
 import { moneyFromBusinessProfile } from "@/lib/money";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { formatCurrency } from "@/lib/utils";
+import { DashboardGreeting } from "@/components/dashboard/dashboard-greeting";
 import { BottomNav } from "@/components/layout/bottom-nav";
 
 type DashboardPageProps = {
   params: Promise<{ locale: string }>;
   searchParams: Promise<{ period?: string }>;
 };
-
-function getTimeOfDay(hours: number): "morning" | "afternoon" | "evening" {
-  if (hours < 12) {
-    return "morning";
-  }
-  if (hours < 18) {
-    return "afternoon";
-  }
-  return "evening";
-}
 
 export default async function DashboardPage({
   params,
@@ -91,15 +82,6 @@ export default async function DashboardPage({
   const money = moneyFromBusinessProfile(profile);
   const ownerName =
     profile?.owner_name?.trim() || t("fallbackOwner");
-  const timeKey = getTimeOfDay(now.getHours());
-  const greetingKey =
-    timeKey === "morning"
-      ? "greetingMorning"
-      : timeKey === "afternoon"
-        ? "greetingAfternoon"
-        : "greetingEvening";
-  const greeting = t(greetingKey, { ownerName });
-
   const revenue =
     paidInvoicesResult.data?.reduce((sum, row) => sum + Number(row.total ?? 0), 0) ?? 0;
   const expenses =
@@ -132,7 +114,7 @@ export default async function DashboardPage({
       </header>
 
       <main className="mx-auto flex w-full max-w-[400px] flex-col gap-4 px-4 py-5">
-        <h1 className="text-2xl font-bold">{greeting}</h1>
+        <DashboardGreeting ownerName={ownerName} />
 
         {hasDataError ? (
           <div className="rounded-lg border border-[#EF4444]/40 bg-[#EF4444]/10 px-3 py-2 text-sm text-[#EF4444]">

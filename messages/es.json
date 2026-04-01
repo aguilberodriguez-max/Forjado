@@ -99,6 +99,7 @@
     "greetingMorning": "¡Buenos Días, {ownerName}!",
     "greetingAfternoon": "¡Buenas Tardes, {ownerName}!",
     "greetingEvening": "¡Buenas Tardes, {ownerName}!",
+    "greetingNight": "¡Buenas Noches, {ownerName}!",
     "trialBanner": "Prueba Gratis — quedan {days} días",
     "period": {
       "week": "Esta Semana",

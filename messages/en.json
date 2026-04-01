@@ -99,6 +99,7 @@
     "greetingMorning": "Good morning, {ownerName}!",
     "greetingAfternoon": "Good afternoon, {ownerName}!",
     "greetingEvening": "Good evening, {ownerName}!",
+    "greetingNight": "Good night, {ownerName}!",
     "trialBanner": "Free Trial — {days} days left",
     "period": {
       "week": "This Week",
