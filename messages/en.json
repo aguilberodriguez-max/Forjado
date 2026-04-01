@@ -183,9 +183,11 @@
       "newName": "Client name",
       "newEmail": "Client email",
       "newPhone": "Client phone",
-      "newCountry": "Country",
-      "countryPlaceholder": "Select a country",
-      "newStateProvince": "State / Province"
+      "newStreet": "Street address (optional)",
+      "newCity": "City (optional)",
+      "newState": "State / province (optional)",
+      "newZip": "ZIP / postal code (optional)",
+      "newNotes": "Client notes (optional)"
     },
     "lineItems": {
       "title": "Line items",

@@ -183,9 +183,11 @@
       "newName": "Nombre del cliente",
       "newEmail": "Correo del cliente",
       "newPhone": "Teléfono del cliente",
-      "newCountry": "País",
-      "countryPlaceholder": "Selecciona un país",
-      "newStateProvince": "Estado / Provincia"
+      "newStreet": "Dirección (opcional)",
+      "newCity": "Ciudad (opcional)",
+      "newState": "Estado / provincia (opcional)",
+      "newZip": "Código postal (opcional)",
+      "newNotes": "Notas del cliente (opcional)"
     },
     "lineItems": {
       "title": "Conceptos",

@@ -10,7 +10,6 @@ import { useMemo, useState } from "react";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 
-import { CountrySelect } from "@/components/forms/country-select";
 import { Button } from "@/components/ui/button";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 import type { MoneyFormat } from "@/lib/money";
@@ -30,7 +29,6 @@ type NewEstimateFormProps = {
   clients: ClientOption[];
   defaultTaxRate: number;
   money: MoneyFormat;
-  defaultCountryCode: string;
 };
 
 type FormValues = {
@@ -39,8 +37,11 @@ type FormValues = {
   newClientName?: string;
   newClientEmail?: string;
   newClientPhone?: string;
-  newClientCountryCode?: string;
+  newClientStreet?: string;
+  newClientCity?: string;
   newClientState?: string;
+  newClientZip?: string;
+  newClientNotes?: string;
   lineItems: Array<{
     description: string;
     quantity: number;
@@ -59,7 +60,6 @@ export function NewEstimateForm({
   clients,
   defaultTaxRate,
   money,
-  defaultCountryCode,
 }: NewEstimateFormProps) {
   const t = useTranslations("estimateNew");
   const locale = useLocale();
@@ -77,8 +77,11 @@ export function NewEstimateForm({
           newClientName: z.string().optional(),
           newClientEmail: z.string().optional(),
           newClientPhone: z.string().optional(),
-          newClientCountryCode: z.string().optional(),
+          newClientStreet: z.string().optional(),
+          newClientCity: z.string().optional(),
           newClientState: z.string().optional(),
+          newClientZip: z.string().optional(),
+          newClientNotes: z.string().optional(),
           lineItems: z
             .array(
               z.object({
@@ -101,20 +104,6 @@ export function NewEstimateForm({
                 message: t("validation.required"),
               });
             }
-            if (!value.newClientCountryCode?.trim()) {
-              ctx.addIssue({
-                code: "custom",
-                path: ["newClientCountryCode"],
-                message: t("validation.required"),
-              });
-            }
-            if (!value.newClientState?.trim()) {
-              ctx.addIssue({
-                code: "custom",
-                path: ["newClientState"],
-                message: t("validation.required"),
-              });
-            }
           } else if (!value.clientId) {
             ctx.addIssue({
               code: "custom",
@@ -134,8 +123,11 @@ export function NewEstimateForm({
       newClientName: "",
       newClientEmail: "",
       newClientPhone: "",
-      newClientCountryCode: defaultCountryCode,
+      newClientStreet: "",
+      newClientCity: "",
       newClientState: "",
+      newClientZip: "",
+      newClientNotes: "",
       lineItems: [{ description: "", quantity: 1, unitPrice: 0 }],
       taxRate: defaultTaxRate,
       notes: "",
@@ -185,8 +177,11 @@ export function NewEstimateForm({
           name: values.newClientName?.trim(),
           email: values.newClientEmail?.trim() || null,
           phone: values.newClientPhone?.trim() || null,
-          country_code: values.newClientCountryCode?.trim() || null,
+          street_address: values.newClientStreet?.trim() || null,
+          city: values.newClientCity?.trim() || null,
           state: values.newClientState?.trim() || null,
+          zip_code: values.newClientZip?.trim() || null,
+          notes: values.newClientNotes?.trim() || null,
           is_archived: false,
         })
         .select("id")
@@ -282,16 +277,7 @@ export function NewEstimateForm({
             <button
               type="button"
               className="mt-3 text-sm text-[#F26522]"
-              onClick={() => {
-                setShowNewClient((prev) => {
-                  const next = !prev;
-                  if (next) {
-                    form.setValue("newClientCountryCode", defaultCountryCode);
-                    form.setValue("newClientState", "");
-                  }
-                  return next;
-                });
-              }}
+              onClick={() => setShowNewClient((prev) => !prev)}
             >
               {showNewClient ? t("clientSelector.useExisting") : t("clientSelector.addNew")}
             </button>
@@ -313,36 +299,32 @@ export function NewEstimateForm({
                   className="h-10 w-full rounded-md border border-white/10 bg-[#0A0A0A] px-3 text-sm text-white outline-none"
                   {...form.register("newClientPhone")}
                 />
-                <label className="block text-xs text-[#A3A3A3]">{t("clientSelector.newCountry")}</label>
-                <CountrySelect
-                  placeholder={t("clientSelector.countryPlaceholder")}
-                  value={form.watch("newClientCountryCode") ?? ""}
-                  onChange={(code) =>
-                    form.setValue("newClientCountryCode", code, { shouldValidate: true })
-                  }
-                  aria-invalid={Boolean(form.formState.errors.newClientCountryCode)}
+                <input
+                  placeholder={t("clientSelector.newStreet")}
+                  className="h-10 w-full rounded-md border border-white/10 bg-[#0A0A0A] px-3 text-sm text-white outline-none"
+                  {...form.register("newClientStreet")}
                 />
-                {form.formState.errors.newClientCountryCode ? (
-                  <p className="text-xs text-[#EF4444]">
-                    {form.formState.errors.newClientCountryCode.message}
-                  </p>
-                ) : null}
-                {form.watch("newClientCountryCode") ? (
-                  <>
-                    <label className="block text-xs text-[#A3A3A3]">
-                      {t("clientSelector.newStateProvince")}
-                    </label>
-                    <input
-                      className="h-10 w-full rounded-md border border-white/10 bg-[#0A0A0A] px-3 text-sm text-white outline-none"
-                      {...form.register("newClientState")}
-                    />
-                    {form.formState.errors.newClientState ? (
-                      <p className="text-xs text-[#EF4444]">
-                        {form.formState.errors.newClientState.message}
-                      </p>
-                    ) : null}
-                  </>
-                ) : null}
+                <input
+                  placeholder={t("clientSelector.newCity")}
+                  className="h-10 w-full rounded-md border border-white/10 bg-[#0A0A0A] px-3 text-sm text-white outline-none"
+                  {...form.register("newClientCity")}
+                />
+                <input
+                  placeholder={t("clientSelector.newState")}
+                  className="h-10 w-full rounded-md border border-white/10 bg-[#0A0A0A] px-3 text-sm text-white outline-none"
+                  {...form.register("newClientState")}
+                />
+                <input
+                  placeholder={t("clientSelector.newZip")}
+                  className="h-10 w-full rounded-md border border-white/10 bg-[#0A0A0A] px-3 text-sm text-white outline-none"
+                  {...form.register("newClientZip")}
+                />
+                <textarea
+                  rows={2}
+                  placeholder={t("clientSelector.newNotes")}
+                  className="w-full rounded-md border border-white/10 bg-[#0A0A0A] px-3 py-2 text-sm text-white outline-none"
+                  {...form.register("newClientNotes")}
+                />
                 {form.formState.errors.newClientName ? (
                   <p className="text-xs text-[#EF4444]">
                     {form.formState.errors.newClientName.message}
