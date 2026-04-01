@@ -68,7 +68,10 @@
       "countryPlaceholder": "Selecciona un país",
       "stateProvince": "Estado / Provincia",
       "stateProvincePlaceholder": "Región o provincia",
-      "zip": "Código postal (opcional)"
+      "zip": "Código postal (opcional)",
+      "street": "Dirección",
+      "logoLabel": "Logo del negocio",
+      "logoButton": "Elegir imagen"
     },
     "step3": {
       "title": "¡Todo listo!",
@@ -105,6 +108,15 @@
       "week": "Esta Semana",
       "month": "Este Mes"
     },
+    "chart": {
+      "title": "Rendimiento",
+      "period": {
+        "week": "Esta Semana",
+        "month": "Este Mes",
+        "last12": "Últimos 12 Meses",
+        "ytd": "Año a la Fecha"
+      }
+    },
     "kpi": {
       "revenue": "Ingresos",
       "expenses": "Gastos",
@@ -133,6 +145,7 @@
     "loadError": "No pudimos cargar algunos datos del panel."
   },
   "estimates": {
+    "listClientTooltip": "Cliente: {name}",
     "title": "Estimados",
     "newEstimate": "Nuevo Estimado",
     "searchPlaceholder": "Buscar por cliente o # de estimado",
@@ -252,12 +265,15 @@
       "sms": "SMS",
       "email": "Correo",
       "copyLink": "Copiar enlace",
-      "emailSubject": "Estimado"
+      "downloadPdf": "Descargar PDF",
+      "emailSubject": "Estimado",
+      "linkCopied": "Enlace copiado al portapapeles."
     },
     "loading": {
       "convert": "Convirtiendo...",
       "send": "Enviando...",
-      "delete": "Eliminando..."
+      "delete": "Eliminando...",
+      "pdf": "Preparando PDF..."
     },
     "errors": {
       "convertFailed": "No se pudo convertir el estimado a factura.",
@@ -396,6 +412,12 @@
     "errors": {
       "save": "No se pudo guardar el gasto."
     },
+    "charts": {
+      "title": "Resumen de gastos",
+      "donutTitle": "Por categoría",
+      "barTitle": "Total por categoría",
+      "empty": "No hay gastos en este periodo."
+    },
     "nav": {
       "dashboard": "Panel",
       "estimates": "Estimados",
@@ -423,7 +445,10 @@
       "save": "Guardar",
       "cancel": "Cancelar",
       "saving": "Guardando...",
-      "saveError": "No se pudo guardar el perfil. Inténtalo de nuevo."
+      "saveError": "No se pudo guardar el perfil. Inténtalo de nuevo.",
+      "logoLabel": "Logo del negocio",
+      "logoButton": "Subir imagen",
+      "logoHelper": "PNG, JPG, WebP o GIF. Se muestra en estimados y facturas."
     },
     "language": {
       "title": "Idioma",

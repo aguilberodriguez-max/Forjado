@@ -68,7 +68,10 @@
       "countryPlaceholder": "Select a country",
       "stateProvince": "State / Province",
       "stateProvincePlaceholder": "Region or province",
-      "zip": "ZIP / Postal code (optional)"
+      "zip": "ZIP / Postal code (optional)",
+      "street": "Street address",
+      "logoLabel": "Business logo",
+      "logoButton": "Choose image"
     },
     "step3": {
       "title": "You're all set!",
@@ -105,6 +108,15 @@
       "week": "This Week",
       "month": "This Month"
     },
+    "chart": {
+      "title": "Performance",
+      "period": {
+        "week": "This Week",
+        "month": "This Month",
+        "last12": "Last 12 Months",
+        "ytd": "Year to Date"
+      }
+    },
     "kpi": {
       "revenue": "Revenue",
       "expenses": "Expenses",
@@ -133,6 +145,7 @@
     "loadError": "We could not load some dashboard data."
   },
   "estimates": {
+    "listClientTooltip": "Client: {name}",
     "title": "Estimates",
     "newEstimate": "New Estimate",
     "searchPlaceholder": "Search by client or estimate #",
@@ -252,12 +265,15 @@
       "sms": "SMS",
       "email": "Email",
       "copyLink": "Copy Link",
-      "emailSubject": "Estimate"
+      "downloadPdf": "Download PDF",
+      "emailSubject": "Estimate",
+      "linkCopied": "Link copied to clipboard."
     },
     "loading": {
       "convert": "Converting...",
       "send": "Sending...",
-      "delete": "Deleting..."
+      "delete": "Deleting...",
+      "pdf": "Preparing PDF..."
     },
     "errors": {
       "convertFailed": "Could not convert estimate to invoice.",
@@ -396,6 +412,12 @@
     "errors": {
       "save": "Could not save expense."
     },
+    "charts": {
+      "title": "Spending overview",
+      "donutTitle": "By category",
+      "barTitle": "Total by category",
+      "empty": "No expenses in this period."
+    },
     "nav": {
       "dashboard": "Dashboard",
       "estimates": "Estimates",
@@ -423,7 +445,10 @@
       "save": "Save",
       "cancel": "Cancel",
       "saving": "Saving...",
-      "saveError": "Could not save your profile. Try again."
+      "saveError": "Could not save your profile. Try again.",
+      "logoLabel": "Business logo",
+      "logoButton": "Upload image",
+      "logoHelper": "PNG, JPG, WebP, or GIF. Shown on estimates and invoices."
     },
     "language": {
       "title": "Language",

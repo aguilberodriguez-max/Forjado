@@ -5,9 +5,21 @@ import {
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { differenceInCalendarDays, endOfMonth, endOfWeek, startOfMonth, startOfWeek } from "date-fns";
+import { differenceInCalendarDays } from "date-fns";
 
+import { DashboardPerformanceChart } from "@/components/dashboard/dashboard-performance-chart";
 import { moneyFromBusinessProfile } from "@/lib/money";
+import {
+  aggregatePerformanceSeries,
+  sumPerformanceSeries,
+  type ExpenseDateRow,
+  type InvoicePaidRow,
+} from "@/lib/charts/performance-aggregation";
+import {
+  buildPerformanceBuckets,
+  getOverallRange,
+  parseChartRange,
+} from "@/lib/charts/chart-range";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { formatCurrency } from "@/lib/utils";
 import { DashboardGreeting } from "@/components/dashboard/dashboard-greeting";
@@ -15,14 +27,16 @@ import { BottomNav } from "@/components/layout/bottom-nav";
 
 type DashboardPageProps = {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ period?: string }>;
+  searchParams: Promise<{ range?: string }>;
 };
+
+const RANGE_KEYS = ["week", "month", "last12", "ytd"] as const;
 
 export default async function DashboardPage({
   params,
   searchParams,
 }: DashboardPageProps) {
-  const [{ locale }, { period }] = await Promise.all([params, searchParams]);
+  const [{ locale }, sp] = await Promise.all([params, searchParams]);
   const t = await getTranslations("dashboard");
   const supabase = await createServerSupabaseClient();
 
@@ -34,16 +48,9 @@ export default async function DashboardPage({
     redirect(`/${locale}/login`);
   }
 
-  const selectedPeriod = period === "month" ? "month" : "week";
+  const chartRange = parseChartRange(sp.range);
   const now = new Date();
-  const periodStart =
-    selectedPeriod === "week"
-      ? startOfWeek(now, { weekStartsOn: 1 })
-      : startOfMonth(now);
-  const periodEnd =
-    selectedPeriod === "week"
-      ? endOfWeek(now, { weekStartsOn: 1 })
-      : endOfMonth(now);
+  const { start: periodStart, end: periodEnd } = getOverallRange(chartRange, now);
 
   const [profileResult, paidInvoicesResult, expensesResult, outstandingResult, eventsResult] =
     await Promise.all([
@@ -54,7 +61,7 @@ export default async function DashboardPage({
         .maybeSingle(),
       supabase
         .from("invoices")
-        .select("total,paid_at,created_at")
+        .select("total,paid_at")
         .eq("user_id", user.id)
         .eq("status", "paid")
         .gte("paid_at", periodStart.toISOString())
@@ -82,11 +89,13 @@ export default async function DashboardPage({
   const money = moneyFromBusinessProfile(profile);
   const ownerName =
     profile?.owner_name?.trim() || t("fallbackOwner");
-  const revenue =
-    paidInvoicesResult.data?.reduce((sum, row) => sum + Number(row.total ?? 0), 0) ?? 0;
-  const expenses =
-    expensesResult.data?.reduce((sum, row) => sum + Number(row.amount ?? 0), 0) ?? 0;
-  const profit = revenue - expenses;
+
+  const invoices = (paidInvoicesResult.data ?? []) as InvoicePaidRow[];
+  const expensesRows = (expensesResult.data ?? []) as ExpenseDateRow[];
+
+  const buckets = buildPerformanceBuckets(chartRange, now, locale);
+  const series = aggregatePerformanceSeries(invoices, expensesRows, buckets);
+  const { revenue, expenses, profit } = sumPerformanceSeries(series);
 
   const outstandingCount = outstandingResult.data?.length ?? 0;
   const outstandingTotal =
@@ -128,32 +137,37 @@ export default async function DashboardPage({
           </div>
         ) : null}
 
-        <div className="grid grid-cols-2 gap-2 rounded-lg bg-[#1A1A1A] p-1">
-          <Link
-            href={`/${locale}/dashboard?period=week`}
-            className={`rounded-md px-3 py-2 text-center text-sm ${
-              selectedPeriod === "week"
-                ? "bg-[#F26522] font-medium text-white"
-                : "text-[#A3A3A3]"
-            }`}
-          >
-            {t("period.week")}
-          </Link>
-          <Link
-            href={`/${locale}/dashboard?period=month`}
-            className={`rounded-md px-3 py-2 text-center text-sm ${
-              selectedPeriod === "month"
-                ? "bg-[#F26522] font-medium text-white"
-                : "text-[#A3A3A3]"
-            }`}
-          >
-            {t("period.month")}
-          </Link>
-        </div>
+        <section className="flex flex-col gap-2">
+          <p className="text-sm font-medium text-white">{t("chart.title")}</p>
+          <div className="flex flex-wrap gap-2">
+            {RANGE_KEYS.map((key) => (
+              <Link
+                key={key}
+                href={`/${locale}/dashboard?range=${key}`}
+                className={`rounded-md px-2.5 py-1.5 text-center text-xs ${
+                  chartRange === key
+                    ? "bg-[#F26522] font-medium text-white"
+                    : "bg-[#1A1A1A] text-[#A3A3A3]"
+                }`}
+              >
+                {t(`chart.period.${key}`)}
+              </Link>
+            ))}
+          </div>
+          <DashboardPerformanceChart
+            data={series}
+            money={money}
+            seriesLabels={{
+              revenue: t("kpi.revenue"),
+              expenses: t("kpi.expenses"),
+              profit: t("kpi.profit"),
+            }}
+          />
+        </section>
 
         <section className="rounded-xl border border-white/10 bg-[#1A1A1A] p-4">
           <p className="text-sm text-[#A3A3A3]">{t("kpi.revenue")}</p>
-          <p className="mt-2 text-3xl font-bold text-[#22C55E]">
+          <p className="mt-2 text-3xl font-bold text-[#F26522]">
             {formatCurrency(revenue, money)}
           </p>
         </section>
@@ -161,11 +175,15 @@ export default async function DashboardPage({
         <section className="grid grid-cols-2 gap-3">
           <div className="rounded-xl border border-white/10 bg-[#1A1A1A] p-4">
             <p className="text-sm text-[#A3A3A3]">{t("kpi.expenses")}</p>
-            <p className="mt-2 text-xl font-semibold">{formatCurrency(expenses, money)}</p>
+            <p className="mt-2 text-xl font-semibold text-[#EF4444]">
+              {formatCurrency(expenses, money)}
+            </p>
           </div>
           <div className="rounded-xl border border-white/10 bg-[#1A1A1A] p-4">
             <p className="text-sm text-[#A3A3A3]">{t("kpi.profit")}</p>
-            <p className="mt-2 text-xl font-semibold">{formatCurrency(profit, money)}</p>
+            <p className="mt-2 text-xl font-semibold text-[#22C55E]">
+              {formatCurrency(profit, money)}
+            </p>
           </div>
         </section>
 

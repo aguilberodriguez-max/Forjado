@@ -24,6 +24,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { CountrySelect } from "@/components/forms/country-select";
+import { LogoUpload } from "@/components/forms/logo-upload";
 import { Button } from "@/components/ui/button";
 import { getCountryByCode } from "@/lib/countries";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
@@ -58,6 +59,7 @@ type ProfileValues = {
   fullName: string;
   phone: string;
   email: string;
+  street: string;
   city: string;
   countryCode: string;
   state: string;
@@ -73,6 +75,7 @@ export default function OnboardingPage() {
   const [userId, setUserId] = useState<string>("");
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [loadingUser, setLoadingUser] = useState(true);
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
 
   const profileSchema = useMemo(
     () =>
@@ -84,6 +87,7 @@ export default function OnboardingPage() {
           .string()
           .min(1, t("validation.required"))
           .email(t("validation.emailInvalid")),
+        street: z.string(),
         city: z.string().min(1, t("validation.required")),
         countryCode: z.string().min(1, t("validation.required")),
         state: z.string().min(1, t("validation.required")),
@@ -99,6 +103,7 @@ export default function OnboardingPage() {
       fullName: "",
       phone: "",
       email: "",
+      street: "",
       city: "",
       countryCode: "",
       state: "",
@@ -159,10 +164,12 @@ export default function OnboardingPage() {
       owner_name: values.fullName,
       phone: values.phone,
       email: values.email,
+      street_address: values.street.trim() || null,
       city: values.city,
       state_province: values.state,
       zip_code: values.zip || null,
       country_code: country.code,
+      logo_url: logoUrl,
       currency_code: country.currencyCode,
       currency_symbol: country.currencySymbol,
       industry,
@@ -301,6 +308,27 @@ export default function OnboardingPage() {
                 <p className="text-sm text-[#EF4444]">{form.formState.errors.email.message}</p>
               ) : null}
             </div>
+
+            <div className="space-y-1.5">
+              <label className="text-sm text-[#A3A3A3]" htmlFor="street">
+                {t("step2.street")}
+              </label>
+              <input
+                id="street"
+                className="h-11 w-full rounded-md border border-white/10 bg-[#1A1A1A] px-3 text-white outline-none focus-visible:ring-2 focus-visible:ring-[#F26522]/50"
+                {...form.register("street")}
+              />
+            </div>
+
+            {userId ? (
+              <LogoUpload
+                userId={userId}
+                label={t("step2.logoLabel")}
+                buttonText={t("step2.logoButton")}
+                currentUrl={logoUrl}
+                onUploaded={(url) => setLogoUrl(url)}
+              />
+            ) : null}
 
             <div className="space-y-1.5">
               <label className="text-sm text-[#A3A3A3]" htmlFor="city">

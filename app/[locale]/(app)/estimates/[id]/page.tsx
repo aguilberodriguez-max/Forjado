@@ -2,10 +2,12 @@ import { getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
 
 import { EstimateDetailActions } from "@/components/estimates/estimate-detail-actions";
+import { getCountryByCode } from "@/lib/countries";
 import { moneyFromBusinessProfile } from "@/lib/money";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import type { EstimateStatus, LineItem } from "@/types";
 import { formatCurrency } from "@/lib/utils";
+
 type EstimateDetailPageProps = {
   params: Promise<{ locale: string; id: string }>;
 };
@@ -31,6 +33,7 @@ type EstimateDetailRow = {
   total: number;
   notes_client?: string | null;
   public_token: string;
+  valid_until?: string | null;
   clients: Array<{
     name: string;
     email: string | null;
@@ -54,7 +57,7 @@ export default async function EstimateDetailPage({ params }: EstimateDetailPageP
   const { data } = await supabase
     .from("estimates")
     .select(
-      "id,user_id,client_id,estimate_number,status,line_items,subtotal,tax_rate,tax_amount,total,notes_client,public_token,clients(name,email,phone)",
+      "id,user_id,client_id,estimate_number,status,line_items,subtotal,tax_rate,tax_amount,total,notes_client,public_token,valid_until,clients(name,email,phone)",
     )
     .eq("id", id)
     .eq("user_id", user.id)
@@ -68,13 +71,35 @@ export default async function EstimateDetailPage({ params }: EstimateDetailPageP
 
   const { data: profile } = await supabase
     .from("business_profiles")
-    .select("currency_code,currency_symbol")
+    .select(
+      "business_name,logo_url,street_address,city,state,state_province,zip_code,country_code,currency_code,currency_symbol",
+    )
     .eq("user_id", user.id)
     .maybeSingle();
 
   const money = moneyFromBusinessProfile(profile);
 
+  const countryMeta = profile?.country_code
+    ? getCountryByCode(profile.country_code)
+    : undefined;
+  const countryLabel =
+    countryMeta && locale.startsWith("es") ? countryMeta.nameEs : countryMeta?.nameEn;
+
+  const businessAddressLines: string[] = [];
+  if (profile?.street_address?.trim()) {
+    businessAddressLines.push(profile.street_address.trim());
+  }
+  const region = profile?.state_province ?? profile?.state;
+  const cityLine = [profile?.city, region, profile?.zip_code].filter(Boolean).join(", ");
+  if (cityLine) {
+    businessAddressLines.push(cityLine);
+  }
+  if (countryLabel) {
+    businessAddressLines.push(countryLabel);
+  }
+
   const lineItems = estimate.line_items ?? [];
+  const client = estimate.clients?.[0];
 
   return (
     <div className="min-h-screen min-h-dvh bg-[#0A0A0A] px-4 py-4 text-white">
@@ -90,9 +115,9 @@ export default async function EstimateDetailPage({ params }: EstimateDetailPageP
 
         <section className="rounded-xl border border-white/10 bg-[#1A1A1A] p-4">
           <h2 className="text-sm font-medium text-[#A3A3A3]">{t("client")}</h2>
-          <p className="mt-1 text-base font-semibold">{estimate.clients?.[0]?.name ?? "—"}</p>
-          <p className="mt-1 text-sm text-[#A3A3A3]">{estimate.clients?.[0]?.email ?? "—"}</p>
-          <p className="text-sm text-[#A3A3A3]">{estimate.clients?.[0]?.phone ?? "—"}</p>
+          <p className="mt-1 text-base font-semibold">{client?.name ?? "—"}</p>
+          <p className="mt-1 text-sm text-[#A3A3A3]">{client?.email ?? "—"}</p>
+          <p className="text-sm text-[#A3A3A3]">{client?.phone ?? "—"}</p>
         </section>
 
         <section className="rounded-xl border border-white/10 bg-[#1A1A1A] p-4">
@@ -141,6 +166,13 @@ export default async function EstimateDetailPage({ params }: EstimateDetailPageP
           notesClient={estimate.notes_client ?? null}
           publicToken={estimate.public_token}
           money={money}
+          businessName={profile?.business_name?.trim() || "—"}
+          businessAddressLines={businessAddressLines}
+          logoUrl={profile?.logo_url?.trim() || null}
+          clientName={client?.name ?? "—"}
+          clientEmail={client?.email ?? null}
+          clientPhone={client?.phone ?? null}
+          validUntil={estimate.valid_until ?? null}
         />
       </div>
     </div>

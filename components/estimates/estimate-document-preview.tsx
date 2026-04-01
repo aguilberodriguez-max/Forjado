@@ -68,8 +68,8 @@ export function EstimateDocumentPreview({
               className="max-h-20 w-auto max-w-[140px] object-contain object-left"
             />
           ) : (
-            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg bg-neutral-100 text-xs font-semibold uppercase tracking-wide text-neutral-500">
-              {businessName.slice(0, 2).toUpperCase()}
+            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg bg-neutral-100 text-xs font-semibold tracking-wide text-neutral-500">
+              {businessName.slice(0, 2)}
             </div>
           )}
           <div>

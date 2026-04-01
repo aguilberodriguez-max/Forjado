@@ -1,27 +1,32 @@
 import { redirect } from "next/navigation";
 
 import { ExpensesListClient } from "@/components/expenses/expenses-list-client";
+import { parseChartRange } from "@/lib/charts/chart-range";
 import { moneyFromBusinessProfile } from "@/lib/money";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-import type { ExpenseCategory } from "@/types";
 
-type Props = { params: Promise<{ locale: string }> };
+type Props = {
+  params: Promise<{ locale: string }>;
+  searchParams: Promise<{ range?: string }>;
+};
 
 type ExpenseRow = {
   id: string;
-  category: ExpenseCategory;
+  category: string;
   description: string | null;
   amount: number;
   expense_date: string;
 };
 
-export default async function ExpensesPage({ params }: Props) {
-  const { locale } = await params;
+export default async function ExpensesPage({ params, searchParams }: Props) {
+  const [{ locale }, sp] = await Promise.all([params, searchParams]);
   const supabase = await createServerSupabaseClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) redirect(`/${locale}/login`);
+
+  const chartRange = parseChartRange(sp.range);
 
   const [expensesRes, profileRes] = await Promise.all([
     supabase
@@ -47,5 +52,11 @@ export default async function ExpensesPage({ params }: Props) {
     expenseDate: row.expense_date,
   }));
 
-  return <ExpensesListClient expenses={expenses} money={money} />;
+  return (
+    <ExpensesListClient
+      expenses={expenses}
+      money={money}
+      chartRange={chartRange}
+    />
+  );
 }

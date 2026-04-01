@@ -9,10 +9,12 @@ const patchBodySchema = z.object({
   ownerName: z.string().min(1),
   phone: z.string().min(1),
   email: z.string().email(),
+  streetAddress: z.string().optional(),
   city: z.string().min(1),
   countryCode: z.string().min(1),
   stateProvince: z.string().min(1),
   zip: z.string().optional(),
+  logoUrl: z.union([z.string().url(), z.literal(""), z.null()]).optional(),
 });
 
 export async function PATCH(request: Request) {
@@ -46,21 +48,24 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: "Invalid country code" }, { status: 400 });
   }
 
-  const { error } = await supabase
-    .from("business_profiles")
-    .update({
-      business_name: values.businessName,
-      owner_name: values.ownerName,
-      phone: values.phone,
-      email: values.email,
-      city: values.city,
-      state_province: values.stateProvince,
-      zip_code: values.zip?.trim() || null,
-      country_code: country.code,
-      currency_code: country.currencyCode,
-      currency_symbol: country.currencySymbol,
-    })
-    .eq("user_id", user.id);
+  const updatePayload: Record<string, unknown> = {
+    business_name: values.businessName,
+    owner_name: values.ownerName,
+    phone: values.phone,
+    email: values.email,
+    city: values.city,
+    street_address: values.streetAddress?.trim() || null,
+    state_province: values.stateProvince,
+    zip_code: values.zip?.trim() || null,
+    country_code: country.code,
+    currency_code: country.currencyCode,
+    currency_symbol: country.currencySymbol,
+  };
+  if (values.logoUrl !== undefined) {
+    updatePayload.logo_url = values.logoUrl === "" || values.logoUrl === null ? null : values.logoUrl;
+  }
+
+  const { error } = await supabase.from("business_profiles").update(updatePayload).eq("user_id", user.id);
 
   if (error) {
     return NextResponse.json(

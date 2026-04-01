@@ -76,6 +76,38 @@ function DraftEstimateSwipeLink({ children }: { children: ReactNode }) {
   );
 }
 
+function EstimateNumberHeading({
+  estimateNumber,
+  clientName,
+}: {
+  estimateNumber: string;
+  clientName: string;
+}) {
+  const t = useTranslations("estimates");
+  const [tipOpen, setTipOpen] = useState(false);
+  return (
+    <span className="relative inline-block max-w-[min(100%,240px)]">
+      <button
+        type="button"
+        className="block max-w-full truncate text-left text-sm font-semibold text-white"
+        title={t("listClientTooltip", { name: clientName })}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setTipOpen((v) => !v);
+        }}
+      >
+        {estimateNumber}
+      </button>
+      {tipOpen ? (
+        <span className="absolute left-0 top-full z-30 mt-1 max-w-[280px] rounded-md border border-white/15 bg-[#141414] px-2 py-1.5 text-xs font-normal text-[#E5E5E5] shadow-lg sm:hidden">
+          {t("listClientTooltip", { name: clientName })}
+        </span>
+      ) : null}
+    </span>
+  );
+}
+
 function statusClass(status: EstimateStatus): string {
   if (status === "draft") {
     return "border-white/20 bg-white/10 text-[#A3A3A3]";
@@ -281,8 +313,11 @@ export function EstimatesListClient({ estimates, money }: EstimatesListClientPro
                   <DraftEstimateSwipeLink>
                     <Link href={`/${locale}/estimates/${item.id}`} className="block p-3">
                       <div className="flex items-start justify-between gap-2">
-                        <div>
-                          <p className="text-sm font-semibold">{item.estimateNumber}</p>
+                        <div className="min-w-0">
+                          <EstimateNumberHeading
+                            estimateNumber={item.estimateNumber}
+                            clientName={item.clientName}
+                          />
                           <p className="text-xs text-[#A3A3A3]">{item.clientName}</p>
                         </div>
                         <span
@@ -308,8 +343,11 @@ export function EstimatesListClient({ estimates, money }: EstimatesListClientPro
                     className="block min-w-0 flex-1 p-3"
                   >
                     <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <p className="text-sm font-semibold">{item.estimateNumber}</p>
+                      <div className="min-w-0">
+                        <EstimateNumberHeading
+                          estimateNumber={item.estimateNumber}
+                          clientName={item.clientName}
+                        />
                         <p className="text-xs text-[#A3A3A3]">{item.clientName}</p>
                       </div>
                       <span

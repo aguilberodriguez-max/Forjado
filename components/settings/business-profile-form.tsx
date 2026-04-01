@@ -8,6 +8,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { CountrySelect } from "@/components/forms/country-select";
+import { LogoUpload } from "@/components/forms/logo-upload";
 import { Button } from "@/components/ui/button";
 import { countryDisplayName, getCountryByCode } from "@/lib/countries";
 
@@ -16,12 +17,14 @@ type Initial = {
   owner_name: string;
   phone: string;
   email: string;
+  street_address: string | null;
   city: string | null;
   /** Legacy column */
   state: string | null;
   state_province: string | null;
   zip_code: string | null;
   country_code: string | null;
+  logo_url: string | null;
 };
 
 type Props = {
@@ -34,6 +37,7 @@ type FormValues = {
   ownerName: string;
   phone: string;
   email: string;
+  streetAddress: string;
   city: string;
   countryCode: string;
   state: string;
@@ -47,6 +51,7 @@ export function BusinessProfileForm({ userId, initial }: Props) {
   const router = useRouter();
   const [editing, setEditing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [logoUrl, setLogoUrl] = useState<string | null>(initial.logo_url ?? null);
 
   const schema = useMemo(
     () =>
@@ -55,6 +60,7 @@ export function BusinessProfileForm({ userId, initial }: Props) {
         ownerName: z.string().min(1, to("validation.required")),
         phone: z.string().min(1, to("validation.required")),
         email: z.string().min(1, to("validation.required")).email(to("validation.emailInvalid")),
+        streetAddress: z.string(),
         city: z.string().min(1, to("validation.required")),
         countryCode: z.string().min(1, to("validation.required")),
         state: z.string().min(1, to("validation.required")),
@@ -70,6 +76,7 @@ export function BusinessProfileForm({ userId, initial }: Props) {
       ownerName: initial.owner_name,
       phone: initial.phone,
       email: initial.email,
+      streetAddress: initial.street_address ?? "",
       city: initial.city ?? "",
       countryCode: initial.country_code ?? "",
       state: initial.state_province ?? initial.state ?? "",
@@ -93,10 +100,12 @@ export function BusinessProfileForm({ userId, initial }: Props) {
         ownerName: values.ownerName,
         phone: values.phone,
         email: values.email,
+        streetAddress: values.streetAddress.trim() || null,
         city: values.city,
         countryCode: values.countryCode,
         stateProvince: values.state,
         zip: values.zip,
+        logoUrl: logoUrl ?? null,
       }),
     });
 
@@ -126,10 +135,21 @@ export function BusinessProfileForm({ userId, initial }: Props) {
             {t("edit")}
           </button>
         </div>
+        {initial.logo_url ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={initial.logo_url}
+            alt=""
+            className="mb-3 h-16 w-auto max-w-[160px] object-contain object-left"
+          />
+        ) : null}
         <p className="text-sm">{initial.business_name || "—"}</p>
         <p className="text-sm text-[#A3A3A3]">{initial.owner_name || "—"}</p>
         <p className="text-sm text-[#A3A3A3]">{initial.phone || "—"}</p>
         <p className="text-sm text-[#A3A3A3]">{initial.email || "—"}</p>
+        {initial.street_address ? (
+          <p className="text-sm text-[#A3A3A3]">{initial.street_address}</p>
+        ) : null}
         <p className="text-sm text-[#A3A3A3]">
           {[initial.city, initial.state_province ?? initial.state].filter(Boolean).join(", ") || "—"}
         </p>
@@ -154,6 +174,18 @@ export function BusinessProfileForm({ userId, initial }: Props) {
           {error}
         </p>
       ) : null}
+      <LogoUpload
+        userId={userId}
+        label={t("logoLabel")}
+        buttonText={t("logoButton")}
+        helper={t("logoHelper")}
+        currentUrl={logoUrl}
+        onUploaded={(url) => {
+          setLogoUrl(url);
+          setError(null);
+        }}
+        onError={(msg) => setError(msg)}
+      />
       <div className="space-y-1.5">
         <label className="text-xs text-[#A3A3A3]" htmlFor="bp-business">
           {to("step2.businessName")}
@@ -193,6 +225,16 @@ export function BusinessProfileForm({ userId, initial }: Props) {
           type="email"
           className="h-10 w-full rounded-md border border-white/10 bg-[#0A0A0A] px-3 text-sm text-white"
           {...form.register("email")}
+        />
+      </div>
+      <div className="space-y-1.5">
+        <label className="text-xs text-[#A3A3A3]" htmlFor="bp-street">
+          {to("step2.street")}
+        </label>
+        <input
+          id="bp-street"
+          className="h-10 w-full rounded-md border border-white/10 bg-[#0A0A0A] px-3 text-sm text-white"
+          {...form.register("streetAddress")}
         />
       </div>
       <div className="space-y-1.5">

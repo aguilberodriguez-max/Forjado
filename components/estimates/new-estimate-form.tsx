@@ -8,7 +8,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { FocusEvent } from "react";
 import { useEffect, useMemo, useState } from "react";
-import { useFieldArray, useForm, useWatch } from "react-hook-form";
+import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 
 import { EstimateDocumentPreview } from "@/components/estimates/estimate-document-preview";
@@ -200,6 +200,12 @@ export function NewEstimateForm({
     },
   });
 
+  useEffect(() => {
+    if (showNewClient) {
+      form.setValue("clientId", "");
+    }
+  }, [showNewClient, form]);
+
   const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: "lineItems",
@@ -265,7 +271,8 @@ export function NewEstimateForm({
 
   async function resolveClientId(values: FormValues): Promise<string | null> {
     if (!showNewClient) {
-      return values.clientId?.trim() || null;
+      const id = typeof values.clientId === "string" ? values.clientId.trim() : "";
+      return id.length > 0 ? id : null;
     }
 
     const supabase = createBrowserSupabaseClient();
@@ -334,7 +341,7 @@ export function NewEstimateForm({
 
       const { error } = await supabase.from("estimates").insert({
         user_id: userId,
-        client_id: clientRowId,
+        client_id: String(clientRowId),
         estimate_number: estimateNumber,
         status: "draft",
         industry,
@@ -387,17 +394,29 @@ export function NewEstimateForm({
               className="h-10 w-full rounded-md border border-white/10 bg-[#0A0A0A] px-3 text-sm text-white outline-none focus-visible:ring-2 focus-visible:ring-[#F26522]/50"
               {...form.register("search")}
             />
-            <div className="mt-2 max-h-36 space-y-1 overflow-y-auto">
-              {visibleClients.map((client) => (
-                <label
-                  key={client.id}
-                  className="flex items-center gap-2 rounded-md px-2 py-1 text-sm hover:bg-white/5"
-                >
-                  <input type="radio" value={client.id} {...form.register("clientId")} />
-                  <span>{client.name}</span>
-                </label>
-              ))}
-            </div>
+            {!showNewClient ? (
+              <Controller
+                control={form.control}
+                name="clientId"
+                render={({ field }) => (
+                  <div className="mt-2 max-h-36 space-y-1 overflow-y-auto">
+                    {visibleClients.map((client) => (
+                      <label
+                        key={client.id}
+                        className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1 text-sm hover:bg-white/5"
+                      >
+                        <input
+                          type="radio"
+                          checked={field.value === client.id}
+                          onChange={() => field.onChange(client.id)}
+                        />
+                        <span>{client.name}</span>
+                      </label>
+                    ))}
+                  </div>
+                )}
+              />
+            ) : null}
             {form.formState.errors.clientId ? (
               <p className="mt-1 text-xs text-[#EF4444]">
                 {form.formState.errors.clientId.message}

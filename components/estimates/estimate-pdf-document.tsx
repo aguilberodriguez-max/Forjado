@@ -1,4 +1,4 @@
-import { Document, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
+import { Document, Image, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
 
 import type { LineItem } from "@/types";
 import type { MoneyFormat } from "@/lib/money";
@@ -38,6 +38,7 @@ const styles = StyleSheet.create({
 });
 
 export type EstimatePdfDocumentProps = {
+  logoUrl?: string | null;
   documentTitle: string;
   businessName: string;
   businessAddressLines: string[];
@@ -62,6 +63,7 @@ export type EstimatePdfDocumentProps = {
 };
 
 export function EstimatePdfDocument({
+  logoUrl,
   documentTitle,
   businessName,
   businessAddressLines,
@@ -91,6 +93,10 @@ export function EstimatePdfDocument({
       <Page size="A4" style={styles.page}>
         <Text style={styles.title}>{documentTitle}</Text>
         <Text style={{ marginBottom: 12, fontSize: 12, fontWeight: "bold" }}>{estimateNumber}</Text>
+
+        {logoUrl?.trim() ? (
+          <Image src={logoUrl} style={{ width: 96, height: 48, marginBottom: 10 }} />
+        ) : null}
 
         <View style={styles.section}>
           <Text style={styles.label}>{businessName}</Text>

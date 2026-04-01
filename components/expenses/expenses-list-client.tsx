@@ -7,7 +7,9 @@ import {
 import { useLocale, useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
+import { ExpensesCategoryCharts } from "@/components/expenses/expenses-category-charts";
 import { BottomNav } from "@/components/layout/bottom-nav";
+import type { ChartRange } from "@/lib/charts/chart-range";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 import type { MoneyFormat } from "@/lib/money";
 import type { ExpenseCategory } from "@/types";
@@ -15,7 +17,7 @@ import { formatCurrency } from "@/lib/utils";
 
 type ExpenseRow = {
   id: string;
-  category: ExpenseCategory;
+  category: string;
   description?: string | null;
   amount: number;
   expenseDate: string;
@@ -24,6 +26,7 @@ type ExpenseRow = {
 type Props = {
   expenses: ExpenseRow[];
   money: MoneyFormat;
+  chartRange: ChartRange;
 };
 
 const CATEGORIES: ExpenseCategory[] = [
@@ -39,7 +42,17 @@ const CATEGORIES: ExpenseCategory[] = [
   "other",
 ];
 
-export function ExpensesListClient({ expenses, money }: Props) {
+function categoryLabel(
+  category: string,
+  t: (key: string) => string,
+) {
+  if (CATEGORIES.includes(category as ExpenseCategory)) {
+    return t(`categories.${category as ExpenseCategory}`);
+  }
+  return category.trim() || t("categories.other");
+}
+
+export function ExpensesListClient({ expenses, money, chartRange }: Props) {
   const t = useTranslations("expenses");
   const locale = useLocale();
   const [filter, setFilter] = useState<ExpenseCategory | "all">("all");
@@ -92,6 +105,12 @@ export function ExpensesListClient({ expenses, money }: Props) {
         </div>
       </header>
       <main className="mx-auto flex w-full max-w-[400px] flex-col gap-3 px-4 py-4">
+        <ExpensesCategoryCharts
+          locale={locale}
+          expenses={expenses}
+          money={money}
+          chartRange={chartRange}
+        />
         <div className="flex gap-2 overflow-x-auto pb-1">
           <button
             type="button"
@@ -118,7 +137,9 @@ export function ExpensesListClient({ expenses, money }: Props) {
                 <Receipt className="h-4 w-4" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm">{row.description || t(`categories.${row.category}`)}</p>
+                <p className="truncate text-sm">
+                  {row.description || categoryLabel(row.category, t)}
+                </p>
                 <p className="text-xs text-[#A3A3A3]">{new Date(row.expenseDate).toLocaleDateString(locale)}</p>
               </div>
               <p className="text-sm font-semibold">
