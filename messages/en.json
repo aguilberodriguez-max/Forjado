@@ -354,6 +354,16 @@
     },
     "searchPlaceholder": "Search clients",
     "noJobs": "No jobs yet",
+    "delete": {
+      "label": "Remove client from list",
+      "shortLabel": "Remove",
+      "confirmLead": "Archive \"{name}\"? They will no longer appear in your client list.",
+      "hasEstimates": "This client has {count} estimate(s). Those records stay in your account.",
+      "hasInvoices": "This client has {count} invoice(s). Those records stay in your account.",
+      "archiveNote": "Estimates and invoices are not deleted — history is preserved. Only the client is hidden (archived).",
+      "error": "Could not archive this client.",
+      "archiving": "Archiving…"
+    },
     "nav": {
       "dashboard": "Dashboard",
       "estimates": "Estimates",

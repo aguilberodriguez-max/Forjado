@@ -4,7 +4,7 @@
     "signup": "Registrarse",
     "dashboard": "Panel",
     "estimates": "Estimados",
-    "estimatesNew": "Nuevo presupuesto",
+    "estimatesNew": "Nuevo Estimado",
     "invoices": "Facturas",
     "clients": "Clientes",
     "expenses": "Gastos",
@@ -119,7 +119,7 @@
     },
     "quickActions": {
       "title": "Acciones Rápidas",
-      "newEstimate": "Nuevo Presupuesto",
+      "newEstimate": "Nuevo Estimado",
       "addExpense": "Agregar Gasto"
     },
     "nav": {
@@ -133,12 +133,12 @@
   },
   "estimates": {
     "title": "Estimados",
-    "newEstimate": "Nuevo Presupuesto",
-    "searchPlaceholder": "Buscar por cliente o # de presupuesto",
+    "newEstimate": "Nuevo Estimado",
+    "searchPlaceholder": "Buscar por cliente o # de estimado",
     "pullToRefresh": "Desliza para actualizar",
     "refreshing": "Actualizando...",
-    "empty": "No hay presupuestos todavía",
-    "draftSavedBanner": "Presupuesto guardado como borrador.",
+    "empty": "No hay estimados todavía",
+    "draftSavedBanner": "Estimado guardado como borrador.",
     "filters": {
       "all": "Todos",
       "draft": "En Proceso",
@@ -156,8 +156,8 @@
     "delete": {
       "label": "Eliminar borrador",
       "shortLabel": "Borrar",
-      "confirm": "¿Eliminar este presupuesto en borrador?",
-      "error": "No se pudo eliminar este presupuesto."
+      "confirm": "¿Eliminar este estimado en borrador?",
+      "error": "No se pudo eliminar este estimado."
     },
     "nav": {
       "dashboard": "Panel",
@@ -168,17 +168,17 @@
     }
   },
   "estimateNew": {
-    "title": "Nuevo Presupuesto",
+    "title": "Nuevo Estimado",
     "cancel": "Cancelar",
     "saveDraft": "Guardar como Borrador",
     "savingDraft": "Guardando…",
     "draftSaved": "Borrador guardado. Redirigiendo…",
     "draftLinePlaceholder": "Concepto (por definir)",
     "preview": "Vista previa",
-    "previewTitle": "Vista previa del presupuesto",
+    "previewTitle": "Vista previa del estimado",
     "previewBody": "{count} conceptos • {total}",
     "pdf": {
-      "documentTitle": "Presupuesto",
+      "documentTitle": "Estimado",
       "previewNumber": "Vista previa",
       "notes": "Notas"
     },
@@ -188,7 +188,7 @@
     },
     "previewDoc": {
       "billTo": "Cliente",
-      "footer": "Vista previa — así podría verse el presupuesto para tu cliente.",
+      "footer": "Vista previa — así podría verse el estimado para tu cliente.",
       "description": "Descripción",
       "quantity": "Cant.",
       "unitPrice": "Precio unit.",
@@ -234,7 +234,7 @@
     },
     "errors": {
       "saveClient": "No se pudo guardar el cliente.",
-      "saveEstimate": "No se pudo guardar el presupuesto."
+      "saveEstimate": "No se pudo guardar el estimado."
     }
   },
   "estimateDetail": {
@@ -246,12 +246,12 @@
     "convertToInvoice": "Convertir a Factura",
     "send": "Enviar",
     "sendSheet": {
-      "title": "Enviar presupuesto",
+      "title": "Enviar estimado",
       "whatsapp": "WhatsApp",
       "sms": "SMS",
       "email": "Correo",
       "copyLink": "Copiar enlace",
-      "emailSubject": "Presupuesto"
+      "emailSubject": "Estimado"
     },
     "loading": {
       "convert": "Convirtiendo...",
@@ -259,9 +259,9 @@
       "delete": "Eliminando..."
     },
     "errors": {
-      "convertFailed": "No se pudo convertir el presupuesto a factura.",
-      "sendFailed": "No se pudo enviar el presupuesto.",
-      "deleteFailed": "No se pudo eliminar el presupuesto."
+      "convertFailed": "No se pudo convertir el estimado a factura.",
+      "sendFailed": "No se pudo enviar el estimado.",
+      "deleteFailed": "No se pudo eliminar el estimado."
     },
     "deleteDraft": "Eliminar borrador",
     "deleteDraftConfirm": "¿Eliminar este borrador? No se puede deshacer."
@@ -354,6 +354,16 @@
     },
     "searchPlaceholder": "Buscar clientes",
     "noJobs": "Sin trabajos aún",
+    "delete": {
+      "label": "Quitar cliente de la lista",
+      "shortLabel": "Quitar",
+      "confirmLead": "¿Archivar a \"{name}\"? Ya no aparecerá en tu lista de clientes.",
+      "hasEstimates": "Este cliente tiene {count} estimado(s). Esos registros se mantienen en tu cuenta.",
+      "hasInvoices": "Este cliente tiene {count} factura(s). Esos registros se mantienen en tu cuenta.",
+      "archiveNote": "Los estimados y facturas no se eliminan — se conserva el historial. Solo se oculta el cliente (archivado).",
+      "error": "No se pudo archivar este cliente.",
+      "archiving": "Archivando…"
+    },
     "nav": {
       "dashboard": "Panel",
       "estimates": "Estimados",
