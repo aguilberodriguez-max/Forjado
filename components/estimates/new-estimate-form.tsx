@@ -2,18 +2,20 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { addDays, format } from "date-fns";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import type { FocusEvent } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 
+import { EstimateDocumentPreview } from "@/components/estimates/estimate-document-preview";
 import { Button } from "@/components/ui/button";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 import type { MoneyFormat } from "@/lib/money";
-import type { Industry } from "@/types";
+import type { Industry, LineItem } from "@/types";
 import { formatCurrency } from "@/lib/utils";
 
 type ClientOption = {
@@ -29,7 +31,17 @@ type NewEstimateFormProps = {
   clients: ClientOption[];
   defaultTaxRate: number;
   money: MoneyFormat;
+  businessName: string;
+  businessAddressLines: string[];
+  logoUrl?: string | null;
 };
+
+function selectZeroOnFocus(event: FocusEvent<HTMLInputElement>) {
+  const v = event.target.value;
+  if (v === "0" || v === "0.0" || v === "0.00") {
+    event.target.select();
+  }
+}
 
 type FormValues = {
   search?: string;
@@ -43,7 +55,7 @@ type FormValues = {
   newClientZip?: string;
   newClientNotes?: string;
   lineItems: Array<{
-    description: string;
+    description?: string;
     quantity: number;
     unitPrice: number;
   }>;
@@ -54,12 +66,52 @@ type FormValues = {
 
 const EMPTY_LINE_ITEMS: FormValues["lineItems"] = [];
 
+function buildLineItemsFromFormRows(
+  rows: FormValues["lineItems"],
+  emptyDescriptionFallback: string,
+): LineItem[] {
+  const out: LineItem[] = [];
+  for (const item of rows) {
+    const desc = (item.description ?? "").trim();
+    const qty = Number(item.quantity);
+    const unit = Number(item.unitPrice);
+    const safeQty = Number.isFinite(qty) && qty > 0 ? qty : 1;
+    const safeUnit = Number.isFinite(unit) && unit >= 0 ? unit : 0;
+    if (!desc && safeQty === 1 && safeUnit === 0) {
+      continue;
+    }
+    const description = desc || emptyDescriptionFallback;
+    out.push({
+      id: crypto.randomUUID(),
+      description,
+      quantity: safeQty,
+      unit_price: safeUnit,
+      line_total: safeQty * safeUnit,
+    });
+  }
+  if (out.length === 0) {
+    return [
+      {
+        id: crypto.randomUUID(),
+        description: emptyDescriptionFallback,
+        quantity: 1,
+        unit_price: 0,
+        line_total: 0,
+      },
+    ];
+  }
+  return out;
+}
+
 export function NewEstimateForm({
   userId,
   industry,
   clients,
   defaultTaxRate,
   money,
+  businessName,
+  businessAddressLines,
+  logoUrl = null,
 }: NewEstimateFormProps) {
   const t = useTranslations("estimateNew");
   const locale = useLocale();
@@ -67,6 +119,19 @@ export function NewEstimateForm({
   const [showNewClient, setShowNewClient] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [showPreview, setShowPreview] = useState(false);
+  const [savingDraft, setSavingDraft] = useState(false);
+  const [draftSavedFlash, setDraftSavedFlash] = useState(false);
+
+  useEffect(() => {
+    if (!showPreview) {
+      return;
+    }
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previous;
+    };
+  }, [showPreview]);
 
   const schema = useMemo(
     () =>
@@ -85,12 +150,12 @@ export function NewEstimateForm({
           lineItems: z
             .array(
               z.object({
-                description: z.string().min(1, t("validation.required")),
-                quantity: z.number().positive(t("validation.quantity")),
-                unitPrice: z.number().min(0, t("validation.nonNegative")),
+                description: z.string().optional(),
+                quantity: z.number(),
+                unitPrice: z.number(),
               }),
             )
-            .min(1, t("validation.lineItemsMin")),
+            .min(1),
           taxRate: z.number().min(0, t("validation.nonNegative")),
           notes: z.string().optional(),
           validUntil: z.string().min(1, t("validation.required")),
@@ -144,6 +209,12 @@ export function NewEstimateForm({
   const lineItems = useWatch({ control: form.control, name: "lineItems" });
   const safeLineItems = lineItems ?? EMPTY_LINE_ITEMS;
   const taxRate = useWatch({ control: form.control, name: "taxRate" }) ?? 0;
+  const validUntil = useWatch({ control: form.control, name: "validUntil" }) ?? "";
+  const notes = useWatch({ control: form.control, name: "notes" }) ?? "";
+  const clientId = useWatch({ control: form.control, name: "clientId" }) ?? "";
+  const newClientName = useWatch({ control: form.control, name: "newClientName" }) ?? "";
+  const newClientEmail = useWatch({ control: form.control, name: "newClientEmail" }) ?? "";
+  const newClientPhone = useWatch({ control: form.control, name: "newClientPhone" }) ?? "";
 
   const visibleClients = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -153,90 +224,144 @@ export function NewEstimateForm({
     return clients.filter((client) => client.name.toLowerCase().includes(q));
   }, [clients, search]);
 
+  const draftLineItems = useMemo(
+    () => buildLineItemsFromFormRows(safeLineItems, t("draftLinePlaceholder")),
+    [safeLineItems, t],
+  );
+
   const subtotal = useMemo(
     () =>
-      safeLineItems.reduce(
-        (sum, item) => sum + Number(item.quantity || 0) * Number(item.unitPrice || 0),
-        0,
-      ),
-    [safeLineItems],
+      draftLineItems.reduce((sum, item) => sum + Number(item.line_total ?? 0), 0),
+    [draftLineItems],
   );
   const taxAmount = subtotal * (Number(taxRate || 0) / 100);
   const total = subtotal + taxAmount;
 
-  async function onSubmit(values: FormValues) {
-    setSubmitError(null);
-    const supabase = createBrowserSupabaseClient();
+  const previewClientName = showNewClient
+    ? newClientName.trim() || "—"
+    : clients.find((c) => c.id === clientId)?.name ?? "—";
 
-    let clientId = values.clientId;
+  const previewClientDetailLines = useMemo(() => {
     if (showNewClient) {
-      const { data: createdClient, error: clientError } = await supabase
-        .from("clients")
-        .insert({
-          user_id: userId,
-          name: values.newClientName?.trim(),
-          email: values.newClientEmail?.trim() || null,
-          phone: values.newClientPhone?.trim() || null,
-          street_address: values.newClientStreet?.trim() || null,
-          city: values.newClientCity?.trim() || null,
-          state: values.newClientState?.trim() || null,
-          zip_code: values.newClientZip?.trim() || null,
-          notes: values.newClientNotes?.trim() || null,
-          is_archived: false,
-        })
-        .select("id")
-        .single();
+      return [newClientEmail.trim(), newClientPhone.trim()].filter(Boolean);
+    }
+    const c = clients.find((x) => x.id === clientId);
+    if (!c) {
+      return [];
+    }
+    return [c.email?.trim(), c.phone?.trim()].filter(Boolean) as string[];
+  }, [showNewClient, newClientEmail, newClientPhone, clients, clientId]);
 
-      if (clientError || !createdClient) {
-        setSubmitError(t("errors.saveClient"));
-        return;
-      }
-      clientId = createdClient.id;
+  const validUntilFormatted = useMemo(() => {
+    if (!validUntil) {
+      return "—";
+    }
+    try {
+      return new Date(validUntil).toLocaleDateString(locale);
+    } catch {
+      return validUntil;
+    }
+  }, [validUntil, locale]);
+
+  async function resolveClientId(values: FormValues): Promise<string | null> {
+    if (!showNewClient) {
+      return values.clientId?.trim() || null;
     }
 
-    if (!clientId) {
+    const supabase = createBrowserSupabaseClient();
+    const { data: createdClient, error: clientError } = await supabase
+      .from("clients")
+      .insert({
+        user_id: userId,
+        name: values.newClientName?.trim(),
+        email: values.newClientEmail?.trim() || null,
+        phone: values.newClientPhone?.trim() || null,
+        street_address: values.newClientStreet?.trim() || null,
+        city: values.newClientCity?.trim() || null,
+        state: values.newClientState?.trim() || null,
+        zip_code: values.newClientZip?.trim() || null,
+        notes: values.newClientNotes?.trim() || null,
+        is_archived: false,
+      })
+      .select("id")
+      .single();
+
+    if (clientError || !createdClient) {
+      return null;
+    }
+    return createdClient.id;
+  }
+
+  async function saveDraft() {
+    form.clearErrors();
+    setSubmitError(null);
+    setDraftSavedFlash(false);
+
+    const values = form.getValues();
+
+    if (showNewClient) {
+      if (!values.newClientName?.trim()) {
+        form.setError("newClientName", { type: "manual", message: t("validation.required") });
+        setSubmitError(t("validation.required"));
+        return;
+      }
+    } else if (!values.clientId) {
+      form.setError("clientId", { type: "manual", message: t("validation.selectClient") });
       setSubmitError(t("validation.selectClient"));
       return;
     }
 
-    const normalizedItems = values.lineItems.map((item) => {
-      const quantity = Number(item.quantity);
-      const unitPrice = Number(item.unitPrice);
-      return {
-        id: crypto.randomUUID(),
-        description: item.description,
-        quantity,
-        unit_price: unitPrice,
-        line_total: quantity * unitPrice,
-      };
-    });
-
-    const estimateNumber = `EST-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
-
-    const { error } = await supabase.from("estimates").insert({
-      user_id: userId,
-      client_id: clientId,
-      estimate_number: estimateNumber,
-      status: "draft",
-      industry,
-      industry_template_data: {},
-      line_items: normalizedItems,
-      subtotal,
-      tax_rate: Number(values.taxRate),
-      tax_amount: taxAmount,
-      total,
-      notes_client: values.notes || null,
-      valid_until: values.validUntil,
-      public_token: crypto.randomUUID(),
-    });
-
-    if (error) {
-      setSubmitError(t("errors.saveEstimate"));
+    if (!values.validUntil?.trim()) {
+      form.setError("validUntil", { type: "manual", message: t("validation.required") });
+      setSubmitError(t("validation.required"));
       return;
     }
 
-    router.replace(`/${locale}/estimates`);
-    router.refresh();
+    setSavingDraft(true);
+    try {
+      const clientRowId = await resolveClientId(values);
+      if (!clientRowId) {
+        setSubmitError(t("errors.saveClient"));
+        return;
+      }
+
+      const normalizedItems = buildLineItemsFromFormRows(values.lineItems, t("draftLinePlaceholder"));
+
+      const estimateNumber = `EST-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
+      const supabase = createBrowserSupabaseClient();
+      const sub = normalizedItems.reduce((s, item) => s + Number(item.line_total ?? 0), 0);
+      const tax = sub * (Number(values.taxRate ?? 0) / 100);
+
+      const { error } = await supabase.from("estimates").insert({
+        user_id: userId,
+        client_id: clientRowId,
+        estimate_number: estimateNumber,
+        status: "draft",
+        industry,
+        industry_template_data: {},
+        line_items: normalizedItems,
+        subtotal: sub,
+        tax_rate: Number(values.taxRate),
+        tax_amount: tax,
+        total: sub + tax,
+        notes_client: values.notes?.trim() || null,
+        valid_until: values.validUntil,
+        public_token: crypto.randomUUID(),
+      });
+
+      if (error) {
+        setSubmitError(t("errors.saveEstimate"));
+        return;
+      }
+
+      setDraftSavedFlash(true);
+      setTimeout(() => {
+        router.replace(`/${locale}/estimates?draftSaved=1`);
+        router.refresh();
+      }, 450);
+    } finally {
+      setSavingDraft(false);
+    }
   }
 
   return (
@@ -249,7 +374,12 @@ export function NewEstimateForm({
           </Link>
         </div>
 
-        <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
+        <form
+          className="space-y-4"
+          onSubmit={(e) => {
+            e.preventDefault();
+          }}
+        >
           <section className="rounded-xl border border-white/10 bg-[#1A1A1A] p-3">
             <p className="mb-2 text-sm font-medium">{t("clientSelector.title")}</p>
             <input
@@ -358,6 +488,7 @@ export function NewEstimateForm({
                         {...form.register(`lineItems.${index}.quantity`, {
                           valueAsNumber: true,
                         })}
+                        onFocus={selectZeroOnFocus}
                       />
                       <input
                         type="number"
@@ -368,6 +499,7 @@ export function NewEstimateForm({
                         {...form.register(`lineItems.${index}.unitPrice`, {
                           valueAsNumber: true,
                         })}
+                        onFocus={selectZeroOnFocus}
                       />
                     </div>
                     <div className="mt-2 flex items-center justify-between text-xs text-[#A3A3A3]">
@@ -445,6 +577,12 @@ export function NewEstimateForm({
             </div>
           </section>
 
+          {draftSavedFlash ? (
+            <p className="rounded-md border border-green-500/40 bg-green-500/10 px-3 py-2 text-sm text-green-300">
+              {t("draftSaved")}
+            </p>
+          ) : null}
+
           {submitError ? (
             <p className="rounded-md border border-[#EF4444]/40 bg-[#EF4444]/10 px-3 py-2 text-sm text-[#EF4444]">
               {submitError}
@@ -453,11 +591,12 @@ export function NewEstimateForm({
 
           <div className="grid grid-cols-2 gap-3">
             <Button
-              type="submit"
+              type="button"
               className="h-11 rounded-md border-0 bg-[#F26522] text-white hover:bg-[#F26522]/90"
-              disabled={form.formState.isSubmitting}
+              disabled={savingDraft}
+              onClick={() => void saveDraft()}
             >
-              {t("saveDraft")}
+              {savingDraft ? t("savingDraft") : t("saveDraft")}
             </Button>
             <Button
               type="button"
@@ -471,14 +610,58 @@ export function NewEstimateForm({
         </form>
 
         {showPreview ? (
-          <div className="mt-4 rounded-xl border border-[#F26522]/40 bg-[#F26522]/10 p-3 text-sm">
-            <p className="font-medium">{t("previewTitle")}</p>
-            <p className="mt-1 text-[#A3A3A3]">
-              {t("previewBody", {
-                count: safeLineItems.length,
-                total: formatCurrency(total, money),
-              })}
-            </p>
+          <div
+            className="fixed inset-0 z-50 flex flex-col bg-[#0A0A0A]"
+            role="dialog"
+            aria-modal="true"
+            aria-label={t("previewModal.title")}
+          >
+            <div className="flex h-14 shrink-0 items-center justify-between border-b border-white/10 bg-[#141414] px-4">
+              <button
+                type="button"
+                onClick={() => setShowPreview(false)}
+                className="inline-flex h-10 w-10 items-center justify-center rounded-md text-white hover:bg-white/10"
+                aria-label={t("previewModal.close")}
+              >
+                <X className="h-6 w-6" />
+              </button>
+              <span className="text-sm font-medium text-white">{t("previewModal.title")}</span>
+              <span className="w-10" aria-hidden />
+            </div>
+            <div className="min-h-0 flex-1 overflow-y-auto bg-neutral-200 py-6">
+              <EstimateDocumentPreview
+                logoUrl={logoUrl}
+                businessName={businessName}
+                businessAddressLines={businessAddressLines}
+                estimateNumber={t("pdf.previewNumber")}
+                documentTitle={t("pdf.documentTitle")}
+                clientName={previewClientName}
+                clientDetailLines={previewClientDetailLines}
+                lineItems={draftLineItems}
+                subtotal={subtotal}
+                taxRate={Number(taxRate || 0)}
+                taxAmount={taxAmount}
+                total={total}
+                money={money}
+                validUntilFormatted={validUntilFormatted}
+                notes={notes.trim() || null}
+                labels={{
+                  documentTitle: t("pdf.documentTitle"),
+                  footer: t("previewDoc.footer"),
+                  billTo: t("previewDoc.billTo"),
+                  lineItemsTitle: t("lineItems.title"),
+                  description: t("previewDoc.description"),
+                  quantity: t("previewDoc.quantity"),
+                  unitPrice: t("previewDoc.unitPrice"),
+                  amount: t("previewDoc.amount"),
+                  subtotal: t("summary.subtotal"),
+                  tax: t("summary.tax"),
+                  total: t("summary.total"),
+                  validUntil: t("validUntil"),
+                  notes: t("pdf.notes"),
+                }}
+              />
+            </div>
           </div>
         ) : null}
       </main>

@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { EstimateDetailActions } from "@/components/estimates/estimate-detail-actions";
 import { moneyFromBusinessProfile } from "@/lib/money";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-import type { LineItem } from "@/types";
+import type { EstimateStatus, LineItem } from "@/types";
 import { formatCurrency } from "@/lib/utils";
 type EstimateDetailPageProps = {
   params: Promise<{ locale: string; id: string }>;
@@ -23,7 +23,7 @@ type EstimateDetailRow = {
   user_id: string;
   client_id: string;
   estimate_number: string;
-  status: string;
+  status: EstimateStatus;
   line_items: LineItemRow[] | LineItem[] | null;
   subtotal: number;
   tax_rate: number;
@@ -132,6 +132,7 @@ export default async function EstimateDetailPage({ params }: EstimateDetailPageP
           userId={estimate.user_id}
           clientId={estimate.client_id}
           estimateNumber={estimate.estimate_number}
+          status={estimate.status}
           total={Number(estimate.total ?? 0)}
           lineItems={(estimate.line_items ?? []) as LineItem[]}
           subtotal={Number(estimate.subtotal ?? 0)}

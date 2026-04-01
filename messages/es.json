@@ -138,6 +138,7 @@
     "pullToRefresh": "Desliza para actualizar",
     "refreshing": "Actualizando...",
     "empty": "No hay presupuestos todavía",
+    "draftSavedBanner": "Presupuesto guardado como borrador.",
     "filters": {
       "all": "Todos",
       "draft": "En Proceso",
@@ -154,6 +155,7 @@
     },
     "delete": {
       "label": "Eliminar borrador",
+      "shortLabel": "Borrar",
       "confirm": "¿Eliminar este presupuesto en borrador?",
       "error": "No se pudo eliminar este presupuesto."
     },
@@ -169,9 +171,29 @@
     "title": "Nuevo Presupuesto",
     "cancel": "Cancelar",
     "saveDraft": "Guardar como Borrador",
+    "savingDraft": "Guardando…",
+    "draftSaved": "Borrador guardado. Redirigiendo…",
+    "draftLinePlaceholder": "Concepto (por definir)",
     "preview": "Vista previa",
     "previewTitle": "Vista previa del presupuesto",
     "previewBody": "{count} conceptos • {total}",
+    "pdf": {
+      "documentTitle": "Presupuesto",
+      "previewNumber": "Vista previa",
+      "notes": "Notas"
+    },
+    "previewModal": {
+      "close": "Cerrar",
+      "title": "Vista del cliente"
+    },
+    "previewDoc": {
+      "billTo": "Cliente",
+      "footer": "Vista previa — así podría verse el presupuesto para tu cliente.",
+      "description": "Descripción",
+      "quantity": "Cant.",
+      "unitPrice": "Precio unit.",
+      "amount": "Importe"
+    },
     "taxRate": "Impuesto (%)",
     "notes": "Notas",
     "validUntil": "Válido hasta",
@@ -233,12 +255,16 @@
     },
     "loading": {
       "convert": "Convirtiendo...",
-      "send": "Enviando..."
+      "send": "Enviando...",
+      "delete": "Eliminando..."
     },
     "errors": {
       "convertFailed": "No se pudo convertir el presupuesto a factura.",
-      "sendFailed": "No se pudo enviar el presupuesto."
-    }
+      "sendFailed": "No se pudo enviar el presupuesto.",
+      "deleteFailed": "No se pudo eliminar el presupuesto."
+    },
+    "deleteDraft": "Eliminar borrador",
+    "deleteDraftConfirm": "¿Eliminar este borrador? No se puede deshacer."
   },
   "invoices": {
     "title": "Facturas",

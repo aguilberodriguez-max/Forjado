@@ -6,9 +6,9 @@ import {
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import type { TouchEvent } from "react";
-import { useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import type { ReactNode, TouchEvent } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { BottomNav } from "@/components/layout/bottom-nav";
@@ -39,6 +39,43 @@ const FILTERS: Array<"all" | "draft" | "sent" | "accepted" | "expired"> = [
   "expired",
 ];
 
+const SWIPE_REVEAL_PX = 80;
+
+function DraftEstimateSwipeLink({ children }: { children: ReactNode }) {
+  const [offset, setOffset] = useState(0);
+  const offsetRef = useRef(0);
+  const startX = useRef(0);
+
+  useEffect(() => {
+    offsetRef.current = offset;
+  }, [offset]);
+
+  return (
+    <div className="relative min-w-0 flex-1 overflow-hidden">
+      <div
+        className="touch-pan-y"
+        style={{
+          transform: `translateX(${offset}px)`,
+          transition:
+            offset === 0 || offset === -SWIPE_REVEAL_PX ? "transform 0.2s ease-out" : "none",
+        }}
+        onTouchStart={(e) => {
+          startX.current = e.touches[0].clientX - offsetRef.current;
+        }}
+        onTouchMove={(e) => {
+          const x = e.touches[0].clientX - startX.current;
+          setOffset(Math.min(0, Math.max(-SWIPE_REVEAL_PX, x)));
+        }}
+        onTouchEnd={() => {
+          setOffset((prev) => (prev < -SWIPE_REVEAL_PX / 2 ? -SWIPE_REVEAL_PX : 0));
+        }}
+      >
+        {children}
+      </div>
+    </div>
+  );
+}
+
 function statusClass(status: EstimateStatus): string {
   if (status === "draft") {
     return "border-white/20 bg-white/10 text-[#A3A3A3]";
@@ -59,6 +96,8 @@ export function EstimatesListClient({ estimates, money }: EstimatesListClientPro
   const t = useTranslations("estimates");
   const locale = useLocale();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const [draftSavedBanner, setDraftSavedBanner] = useState(false);
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<(typeof FILTERS)[number]>("all");
   const [pullStartY, setPullStartY] = useState<number | null>(null);
@@ -66,6 +105,21 @@ export function EstimatesListClient({ estimates, money }: EstimatesListClientPro
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (searchParams.get("draftSaved") === "1") {
+      setDraftSavedBanner(true);
+      router.replace(`/${locale}/estimates`, { scroll: false });
+    }
+  }, [searchParams, locale, router]);
+
+  useEffect(() => {
+    if (!draftSavedBanner) {
+      return;
+    }
+    const timer = window.setTimeout(() => setDraftSavedBanner(false), 6000);
+    return () => window.clearTimeout(timer);
+  }, [draftSavedBanner]);
 
   const filtered = useMemo(() => {
     return estimates.filter((item) => {
@@ -155,6 +209,14 @@ export function EstimatesListClient({ estimates, money }: EstimatesListClientPro
         </div>
       </header>
 
+      {draftSavedBanner ? (
+        <div className="mx-auto w-full max-w-[400px] px-4 pt-3">
+          <p className="rounded-md border border-green-500/40 bg-green-500/10 px-3 py-2 text-sm text-green-300">
+            {t("draftSavedBanner")}
+          </p>
+        </div>
+      ) : null}
+
       <main className="mx-auto flex w-full max-w-[400px] flex-col gap-3 px-4 py-4">
         <div
           className={cn(
@@ -213,10 +275,38 @@ export function EstimatesListClient({ estimates, money }: EstimatesListClientPro
             {filtered.map((item) => (
               <div
                 key={item.id}
-                className="rounded-xl border border-white/10 bg-[#1A1A1A] p-3"
+                className="flex items-stretch gap-0 overflow-hidden rounded-xl border border-white/10 bg-[#1A1A1A]"
               >
-                <div className="flex items-start justify-between gap-2">
-                  <Link href={`/${locale}/estimates/${item.id}`} className="min-w-0 flex-1">
+                {item.status === "draft" ? (
+                  <DraftEstimateSwipeLink>
+                    <Link href={`/${locale}/estimates/${item.id}`} className="block p-3">
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <p className="text-sm font-semibold">{item.estimateNumber}</p>
+                          <p className="text-xs text-[#A3A3A3]">{item.clientName}</p>
+                        </div>
+                        <span
+                          className={cn(
+                            "rounded-full border px-2 py-0.5 text-[11px] font-medium capitalize",
+                            statusClass(item.status),
+                          )}
+                        >
+                          {t(`status.${item.status}`)}
+                        </span>
+                      </div>
+                      <div className="mt-2 flex items-center justify-between text-sm">
+                        <span className="text-[#A3A3A3]">
+                          {new Date(item.createdAt).toLocaleDateString(locale)}
+                        </span>
+                        <span className="font-semibold">{formatCurrency(item.total, money)}</span>
+                      </div>
+                    </Link>
+                  </DraftEstimateSwipeLink>
+                ) : (
+                  <Link
+                    href={`/${locale}/estimates/${item.id}`}
+                    className="block min-w-0 flex-1 p-3"
+                  >
                     <div className="flex items-start justify-between gap-2">
                       <div>
                         <p className="text-sm font-semibold">{item.estimateNumber}</p>
@@ -238,19 +328,20 @@ export function EstimatesListClient({ estimates, money }: EstimatesListClientPro
                       <span className="font-semibold">{formatCurrency(item.total, money)}</span>
                     </div>
                   </Link>
-                  {item.status === "draft" ? (
-                    <button
-                      type="button"
-                      onClick={() => void handleDelete(item.id)}
-                      disabled={deletingId === item.id}
-                      className="ml-2 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-red-400/40 bg-red-400/10 text-red-300 disabled:opacity-50"
-                      aria-label={t("delete.label")}
-                      title={t("delete.label")}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  ) : null}
-                </div>
+                )}
+                {item.status === "draft" ? (
+                  <button
+                    type="button"
+                    onClick={() => void handleDelete(item.id)}
+                    disabled={deletingId === item.id}
+                    className="inline-flex w-14 shrink-0 flex-col items-center justify-center gap-1 border-l border-red-400/30 bg-red-500/15 px-1 text-[10px] font-medium text-red-200 disabled:opacity-50 sm:w-16"
+                    aria-label={t("delete.label")}
+                    title={t("delete.label")}
+                  >
+                    <Trash2 className="h-5 w-5" />
+                    <span className="leading-tight">{t("delete.shortLabel")}</span>
+                  </button>
+                ) : null}
               </div>
             ))}
           </div>

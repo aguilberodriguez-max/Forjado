@@ -7,7 +7,7 @@ import { useState } from "react";
 
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 import type { MoneyFormat } from "@/lib/money";
-import type { LineItem, SendChannel } from "@/types";
+import type { EstimateStatus, LineItem, SendChannel } from "@/types";
 import { formatCurrency } from "@/lib/utils";
 
 type EstimateDetailActionsProps = {
@@ -15,6 +15,7 @@ type EstimateDetailActionsProps = {
   userId: string;
   clientId: string;
   estimateNumber: string;
+  status: EstimateStatus;
   total: number;
   lineItems: LineItem[];
   subtotal: number;
@@ -30,6 +31,7 @@ export function EstimateDetailActions({
   userId,
   clientId,
   estimateNumber,
+  status,
   total,
   lineItems,
   subtotal,
@@ -46,6 +48,7 @@ export function EstimateDetailActions({
   const [isSending, setIsSending] = useState<SendChannel | null>(null);
   const [showSheet, setShowSheet] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   async function handleConvertToInvoice() {
     setActionError(null);
@@ -103,6 +106,28 @@ export function EstimateDetailActions({
     return error;
   }
 
+  async function handleDeleteDraft() {
+    const confirmed = window.confirm(t("deleteDraftConfirm"));
+    if (!confirmed) {
+      return;
+    }
+    setActionError(null);
+    setIsDeleting(true);
+    const supabase = createBrowserSupabaseClient();
+    const { error } = await supabase
+      .from("estimates")
+      .delete()
+      .eq("id", estimateId)
+      .eq("status", "draft");
+    setIsDeleting(false);
+    if (error) {
+      setActionError(t("errors.deleteFailed"));
+      return;
+    }
+    router.push(`/${locale}/estimates`);
+    router.refresh();
+  }
+
   async function handleSend(via: SendChannel) {
     setActionError(null);
     setIsSending(via);
@@ -147,12 +172,23 @@ export function EstimateDetailActions({
           {actionError}
         </p>
       ) : null}
+      {status === "draft" ? (
+        <button
+          type="button"
+          className="mb-3 flex h-11 w-full items-center justify-center gap-2 rounded-md border border-red-400/50 bg-red-500/10 text-sm font-medium text-red-300 disabled:opacity-50"
+          onClick={() => void handleDeleteDraft()}
+          disabled={isDeleting || isConverting || Boolean(isSending)}
+        >
+          {isDeleting ? t("loading.delete") : t("deleteDraft")}
+        </button>
+      ) : null}
+
       <div className="grid grid-cols-2 gap-3">
         <button
           type="button"
           className="h-11 rounded-md bg-[#F26522] text-sm font-medium text-white disabled:opacity-50"
           onClick={() => void handleConvertToInvoice()}
-          disabled={isConverting || Boolean(isSending)}
+          disabled={isConverting || Boolean(isSending) || isDeleting}
         >
           {isConverting ? t("loading.convert") : t("convertToInvoice")}
         </button>
@@ -160,7 +196,7 @@ export function EstimateDetailActions({
           type="button"
           className="h-11 rounded-md border border-[#F26522] text-sm font-medium text-[#F26522] disabled:opacity-50"
           onClick={() => setShowSheet(true)}
-          disabled={isConverting || Boolean(isSending)}
+          disabled={isConverting || Boolean(isSending) || isDeleting}
         >
           {t("send")}
         </button>
