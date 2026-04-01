@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 
 import { EstimatesListClient } from "@/components/estimates/estimates-list-client";
 import { moneyFromBusinessProfile } from "@/lib/money";
+import { unwrapEmbeddedOne } from "@/lib/supabase/embedded-client";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import type { EstimateStatus } from "@/types";
 
@@ -15,7 +16,7 @@ type EstimateRow = {
   created_at: string;
   total: number;
   status: EstimateStatus;
-  clients: Array<{ name: string }> | null;
+  client: { name: string } | { name: string }[] | null;
 };
 
 export default async function EstimatesPage({ params }: EstimatesPageProps) {
@@ -32,7 +33,7 @@ export default async function EstimatesPage({ params }: EstimatesPageProps) {
   const [estimateRes, profileRes] = await Promise.all([
     supabase
       .from("estimates")
-      .select("id,estimate_number,created_at,total,status,clients(name)")
+      .select("id,estimate_number,created_at,total,status,client:clients(name)")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false }),
     supabase
@@ -49,7 +50,7 @@ export default async function EstimatesPage({ params }: EstimatesPageProps) {
 
   const estimates = rows.map((row) => ({
     id: row.id,
-    clientName: row.clients?.[0]?.name ?? "—",
+    clientName: unwrapEmbeddedOne(row.client)?.name ?? "—",
     estimateNumber: row.estimate_number,
     createdAt: row.created_at,
     total: Number(row.total ?? 0),

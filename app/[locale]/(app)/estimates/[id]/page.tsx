@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { EstimateDetailActions } from "@/components/estimates/estimate-detail-actions";
 import { getCountryByCode } from "@/lib/countries";
 import { moneyFromBusinessProfile } from "@/lib/money";
+import { unwrapEmbeddedOne } from "@/lib/supabase/embedded-client";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import type { EstimateStatus, LineItem } from "@/types";
 import { formatCurrency } from "@/lib/utils";
@@ -34,11 +35,18 @@ type EstimateDetailRow = {
   notes_client?: string | null;
   public_token: string;
   valid_until?: string | null;
-  clients: Array<{
-    name: string;
-    email: string | null;
-    phone: string | null;
-  }> | null;
+  client:
+    | {
+        name: string;
+        email: string | null;
+        phone: string | null;
+      }
+    | Array<{
+        name: string;
+        email: string | null;
+        phone: string | null;
+      }>
+    | null;
 };
 
 export default async function EstimateDetailPage({ params }: EstimateDetailPageProps) {
@@ -57,7 +65,7 @@ export default async function EstimateDetailPage({ params }: EstimateDetailPageP
   const { data } = await supabase
     .from("estimates")
     .select(
-      "id,user_id,client_id,estimate_number,status,line_items,subtotal,tax_rate,tax_amount,total,notes_client,public_token,valid_until,clients(name,email,phone)",
+      "id,user_id,client_id,estimate_number,status,line_items,subtotal,tax_rate,tax_amount,total,notes_client,public_token,valid_until,client:clients(name,email,phone)",
     )
     .eq("id", id)
     .eq("user_id", user.id)
@@ -99,7 +107,7 @@ export default async function EstimateDetailPage({ params }: EstimateDetailPageP
   }
 
   const lineItems = estimate.line_items ?? [];
-  const client = estimate.clients?.[0];
+  const client = unwrapEmbeddedOne(estimate.client);
 
   return (
     <div className="min-h-screen min-h-dvh bg-[#0A0A0A] px-4 py-4 text-white">
@@ -116,8 +124,8 @@ export default async function EstimateDetailPage({ params }: EstimateDetailPageP
         <section className="rounded-xl border border-white/10 bg-[#1A1A1A] p-4">
           <h2 className="text-sm font-medium text-[#A3A3A3]">{t("client")}</h2>
           <p className="mt-1 text-base font-semibold">{client?.name ?? "—"}</p>
-          <p className="mt-1 text-sm text-[#A3A3A3]">{client?.email ?? "—"}</p>
-          <p className="text-sm text-[#A3A3A3]">{client?.phone ?? "—"}</p>
+          <p className="mt-1 text-sm text-[#A3A3A3]">{client?.phone ?? "—"}</p>
+          <p className="text-sm text-[#A3A3A3]">{client?.email ?? "—"}</p>
         </section>
 
         <section className="rounded-xl border border-white/10 bg-[#1A1A1A] p-4">

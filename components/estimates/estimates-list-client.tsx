@@ -31,9 +31,9 @@ type EstimatesListClientProps = {
   money: MoneyFormat;
 };
 
-const FILTERS: Array<"all" | "draft" | "sent" | "accepted" | "expired"> = [
+const FILTERS: Array<"all" | "saved" | "sent" | "accepted" | "expired"> = [
   "all",
-  "draft",
+  "saved",
   "sent",
   "accepted",
   "expired",
@@ -41,7 +41,7 @@ const FILTERS: Array<"all" | "draft" | "sent" | "accepted" | "expired"> = [
 
 const SWIPE_REVEAL_PX = 80;
 
-function DraftEstimateSwipeLink({ children }: { children: ReactNode }) {
+function SavedEstimateSwipeLink({ children }: { children: ReactNode }) {
   const [offset, setOffset] = useState(0);
   const offsetRef = useRef(0);
   const startX = useRef(0);
@@ -109,7 +109,7 @@ function EstimateNumberHeading({
 }
 
 function statusClass(status: EstimateStatus): string {
-  if (status === "draft") {
+  if (status === "saved") {
     return "border-white/20 bg-white/10 text-[#A3A3A3]";
   }
   if (status === "sent") {
@@ -129,7 +129,7 @@ export function EstimatesListClient({ estimates, money }: EstimatesListClientPro
   const locale = useLocale();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [draftSavedBanner, setDraftSavedBanner] = useState(false);
+  const [savedBanner, setSavedBanner] = useState(false);
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<(typeof FILTERS)[number]>("all");
   const [pullStartY, setPullStartY] = useState<number | null>(null);
@@ -139,19 +139,19 @@ export function EstimatesListClient({ estimates, money }: EstimatesListClientPro
   const [actionError, setActionError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (searchParams.get("draftSaved") === "1") {
-      setDraftSavedBanner(true);
+    if (searchParams.get("saved") === "1") {
+      setSavedBanner(true);
       router.replace(`/${locale}/estimates`, { scroll: false });
     }
   }, [searchParams, locale, router]);
 
   useEffect(() => {
-    if (!draftSavedBanner) {
+    if (!savedBanner) {
       return;
     }
-    const timer = window.setTimeout(() => setDraftSavedBanner(false), 6000);
+    const timer = window.setTimeout(() => setSavedBanner(false), 6000);
     return () => window.clearTimeout(timer);
-  }, [draftSavedBanner]);
+  }, [savedBanner]);
 
   const filtered = useMemo(() => {
     return estimates.filter((item) => {
@@ -189,7 +189,7 @@ export function EstimatesListClient({ estimates, money }: EstimatesListClientPro
       .from("estimates")
       .delete()
       .eq("id", itemId)
-      .eq("status", "draft");
+      .eq("status", "saved");
     setDeletingId(null);
     if (error) {
       setActionError(t("delete.error"));
@@ -241,10 +241,10 @@ export function EstimatesListClient({ estimates, money }: EstimatesListClientPro
         </div>
       </header>
 
-      {draftSavedBanner ? (
+      {savedBanner ? (
         <div className="mx-auto w-full max-w-[400px] px-4 pt-3">
           <p className="rounded-md border border-green-500/40 bg-green-500/10 px-3 py-2 text-sm text-green-300">
-            {t("draftSavedBanner")}
+            {t("savedBanner")}
           </p>
         </div>
       ) : null}
@@ -309,8 +309,8 @@ export function EstimatesListClient({ estimates, money }: EstimatesListClientPro
                 key={item.id}
                 className="flex items-stretch gap-0 overflow-hidden rounded-xl border border-white/10 bg-[#1A1A1A]"
               >
-                {item.status === "draft" ? (
-                  <DraftEstimateSwipeLink>
+                {item.status === "saved" ? (
+                  <SavedEstimateSwipeLink>
                     <Link href={`/${locale}/estimates/${item.id}`} className="block p-3">
                       <div className="flex items-start justify-between gap-2">
                         <div className="min-w-0">
@@ -336,7 +336,7 @@ export function EstimatesListClient({ estimates, money }: EstimatesListClientPro
                         <span className="font-semibold">{formatCurrency(item.total, money)}</span>
                       </div>
                     </Link>
-                  </DraftEstimateSwipeLink>
+                  </SavedEstimateSwipeLink>
                 ) : (
                   <Link
                     href={`/${locale}/estimates/${item.id}`}
@@ -367,7 +367,7 @@ export function EstimatesListClient({ estimates, money }: EstimatesListClientPro
                     </div>
                   </Link>
                 )}
-                {item.status === "draft" ? (
+                {item.status === "saved" ? (
                   <button
                     type="button"
                     onClick={() => void handleDelete(item.id)}

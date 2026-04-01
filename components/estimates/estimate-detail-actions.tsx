@@ -79,7 +79,7 @@ export function EstimateDetailActions({
   }, [validUntil, locale]);
 
   const clientDetailLines = useMemo(() => {
-    return [clientEmail?.trim(), clientPhone?.trim()].filter(Boolean) as string[];
+    return [clientPhone?.trim(), clientEmail?.trim()].filter(Boolean) as string[];
   }, [clientEmail, clientPhone]);
 
   async function handleConvertToInvoice() {
@@ -138,8 +138,8 @@ export function EstimateDetailActions({
     return error;
   }
 
-  async function handleDeleteDraft() {
-    const confirmed = window.confirm(t("deleteDraftConfirm"));
+  async function handleDeleteSaved() {
+    const confirmed = window.confirm(t("deleteSavedConfirm"));
     if (!confirmed) {
       return;
     }
@@ -150,7 +150,7 @@ export function EstimateDetailActions({
       .from("estimates")
       .delete()
       .eq("id", estimateId)
-      .eq("status", "draft");
+      .eq("status", "saved");
     setIsDeleting(false);
     if (error) {
       setActionError(t("errors.deleteFailed"));
@@ -261,14 +261,14 @@ export function EstimateDetailActions({
           {actionError}
         </p>
       ) : null}
-      {status === "draft" ? (
+      {status === "saved" ? (
         <button
           type="button"
           className="mb-3 flex h-11 w-full items-center justify-center gap-2 rounded-md border border-red-400/50 bg-red-500/10 text-sm font-medium text-red-300 disabled:opacity-50"
-          onClick={() => void handleDeleteDraft()}
+          onClick={() => void handleDeleteSaved()}
           disabled={isDeleting || isConverting || Boolean(isSending) || pdfLoading}
         >
-          {isDeleting ? t("loading.delete") : t("deleteDraft")}
+          {isDeleting ? t("loading.delete") : t("deleteSaved")}
         </button>
       ) : null}
 

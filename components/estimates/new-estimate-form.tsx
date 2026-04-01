@@ -119,8 +119,8 @@ export function NewEstimateForm({
   const [showNewClient, setShowNewClient] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [showPreview, setShowPreview] = useState(false);
-  const [savingDraft, setSavingDraft] = useState(false);
-  const [draftSavedFlash, setDraftSavedFlash] = useState(false);
+  const [savingEstimate, setSavingEstimate] = useState(false);
+  const [estimateSavedFlash, setEstimateSavedFlash] = useState(false);
 
   useEffect(() => {
     if (!showPreview) {
@@ -299,10 +299,10 @@ export function NewEstimateForm({
     return createdClient.id;
   }
 
-  async function saveDraft() {
+  async function saveEstimate() {
     form.clearErrors();
     setSubmitError(null);
-    setDraftSavedFlash(false);
+    setEstimateSavedFlash(false);
 
     const values = form.getValues();
 
@@ -324,7 +324,7 @@ export function NewEstimateForm({
       return;
     }
 
-    setSavingDraft(true);
+    setSavingEstimate(true);
     try {
       const clientRowId = await resolveClientId(values);
       if (!clientRowId) {
@@ -343,7 +343,7 @@ export function NewEstimateForm({
         user_id: userId,
         client_id: String(clientRowId),
         estimate_number: estimateNumber,
-        status: "draft",
+        status: "saved",
         industry,
         industry_template_data: {},
         line_items: normalizedItems,
@@ -361,13 +361,13 @@ export function NewEstimateForm({
         return;
       }
 
-      setDraftSavedFlash(true);
+      setEstimateSavedFlash(true);
       setTimeout(() => {
-        router.replace(`/${locale}/estimates?draftSaved=1`);
+        router.replace(`/${locale}/estimates?saved=1`);
         router.refresh();
       }, 450);
     } finally {
-      setSavingDraft(false);
+      setSavingEstimate(false);
     }
   }
 
@@ -596,9 +596,9 @@ export function NewEstimateForm({
             </div>
           </section>
 
-          {draftSavedFlash ? (
+          {estimateSavedFlash ? (
             <p className="rounded-md border border-green-500/40 bg-green-500/10 px-3 py-2 text-sm text-green-300">
-              {t("draftSaved")}
+              {t("estimateSaved")}
             </p>
           ) : null}
 
@@ -612,10 +612,10 @@ export function NewEstimateForm({
             <Button
               type="button"
               className="h-11 rounded-md border-0 bg-[#F26522] text-white hover:bg-[#F26522]/90"
-              disabled={savingDraft}
-              onClick={() => void saveDraft()}
+              disabled={savingEstimate}
+              onClick={() => void saveEstimate()}
             >
-              {savingDraft ? t("savingDraft") : t("saveDraft")}
+              {savingEstimate ? t("savingEstimate") : t("saveEstimate")}
             </Button>
             <Button
               type="button"

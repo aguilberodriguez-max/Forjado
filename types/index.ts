@@ -1,6 +1,6 @@
 export type Industry = 'cleaning' | 'handyman' | 'auto_detailing' | 'landscaping' | 'beauty_barber' | 'food_catering' | 'painting' | 'moving' | 'roofing' | 'auto_sales' | 'retail' | 'corner_market' | 'construction' | 'other';
 export type Language = 'en' | 'es';
-export type EstimateStatus = 'draft' | 'sent' | 'accepted' | 'declined' | 'expired';
+export type EstimateStatus = 'saved' | 'sent' | 'accepted' | 'declined' | 'expired';
 export type InvoiceStatus = 'draft' | 'sent' | 'paid' | 'overdue' | 'void';
 export type SubscriptionStatus = 'trialing' | 'active' | 'past_due' | 'canceled' | 'incomplete';
 export type PaymentMethod = 'cash' | 'zelle' | 'venmo' | 'check' | 'card' | 'other';

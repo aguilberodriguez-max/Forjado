@@ -152,25 +152,25 @@
     "pullToRefresh": "Desliza para actualizar",
     "refreshing": "Actualizando...",
     "empty": "No hay estimados todavía",
-    "draftSavedBanner": "Estimado guardado como borrador.",
+    "savedBanner": "Estimado guardado.",
     "filters": {
       "all": "Todos",
-      "draft": "En Proceso",
+      "saved": "Guardado",
       "sent": "Enviado",
       "accepted": "Aceptado",
       "expired": "Expirado"
     },
     "status": {
-      "draft": "Borrador",
+      "saved": "Guardado",
       "sent": "Enviado",
       "accepted": "Aceptado",
       "expired": "Vencido",
       "declined": "Rechazado"
     },
     "delete": {
-      "label": "Eliminar borrador",
+      "label": "Eliminar estimado",
       "shortLabel": "Borrar",
-      "confirm": "¿Eliminar este estimado en borrador?",
+      "confirm": "¿Eliminar este estimado guardado?",
       "error": "No se pudo eliminar este estimado."
     },
     "nav": {
@@ -184,9 +184,9 @@
   "estimateNew": {
     "title": "Nuevo Estimado",
     "cancel": "Cancelar",
-    "saveDraft": "Guardar como Borrador",
-    "savingDraft": "Guardando…",
-    "draftSaved": "Borrador guardado. Redirigiendo…",
+    "saveEstimate": "Guardar Estimado",
+    "savingEstimate": "Guardando…",
+    "estimateSaved": "Estimado guardado. Redirigiendo…",
     "draftLinePlaceholder": "Concepto (por definir)",
     "preview": "Vista previa",
     "previewTitle": "Vista previa del estimado",
@@ -280,8 +280,8 @@
       "sendFailed": "No se pudo enviar el estimado.",
       "deleteFailed": "No se pudo eliminar el estimado."
     },
-    "deleteDraft": "Eliminar borrador",
-    "deleteDraftConfirm": "¿Eliminar este borrador? No se puede deshacer."
+    "deleteSaved": "Eliminar estimado",
+    "deleteSavedConfirm": "¿Eliminar este estimado guardado? No se puede deshacer."
   },
   "invoices": {
     "title": "Facturas",

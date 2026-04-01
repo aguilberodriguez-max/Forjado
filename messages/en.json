@@ -152,25 +152,25 @@
     "pullToRefresh": "Pull to refresh",
     "refreshing": "Refreshing...",
     "empty": "No estimates yet",
-    "draftSavedBanner": "Draft estimate saved.",
+    "savedBanner": "Estimate saved.",
     "filters": {
       "all": "All",
-      "draft": "Draft",
+      "saved": "Saved",
       "sent": "Sent",
       "accepted": "Accepted",
       "expired": "Expired"
     },
     "status": {
-      "draft": "Draft",
+      "saved": "Saved",
       "sent": "Sent",
       "accepted": "Accepted",
       "expired": "Expired",
       "declined": "Declined"
     },
     "delete": {
-      "label": "Delete draft",
+      "label": "Delete estimate",
       "shortLabel": "Delete",
-      "confirm": "Delete this draft estimate?",
+      "confirm": "Delete this saved estimate?",
       "error": "Could not delete this estimate."
     },
     "nav": {
@@ -184,9 +184,9 @@
   "estimateNew": {
     "title": "New Estimate",
     "cancel": "Cancel",
-    "saveDraft": "Save as Draft",
-    "savingDraft": "Saving…",
-    "draftSaved": "Draft saved. Redirecting…",
+    "saveEstimate": "Save Estimate",
+    "savingEstimate": "Saving…",
+    "estimateSaved": "Estimate saved. Redirecting…",
     "draftLinePlaceholder": "Item (details to follow)",
     "preview": "Preview",
     "previewTitle": "Estimate preview",
@@ -280,8 +280,8 @@
       "sendFailed": "Could not send estimate.",
       "deleteFailed": "Could not delete this estimate."
     },
-    "deleteDraft": "Delete draft",
-    "deleteDraftConfirm": "Delete this draft estimate? This cannot be undone."
+    "deleteSaved": "Delete estimate",
+    "deleteSavedConfirm": "Delete this saved estimate? This cannot be undone."
   },
   "invoices": {
     "title": "Invoices",
