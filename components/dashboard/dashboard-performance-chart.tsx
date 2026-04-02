@@ -32,16 +32,16 @@ type Props = {
   };
 };
 
-const BG = "#1A1A1A";
-const AXIS = "#A3A3A3";
-const GRID = "#333333";
-const COLOR_REVENUE = "#F26522";
-const COLOR_EXPENSES = "#EF4444";
-const COLOR_PROFIT = "#22C55E";
+const BG = "#151518";
+const AXIS = "#A1A1AA";
+const GRID = "rgba(255,255,255,0.06)";
+const COLOR_REVENUE = "#F05A1A";
+const COLOR_EXPENSES = "#F87171";
+const COLOR_PROFIT = "#2ED47A";
 
 export function DashboardPerformanceChart({ data, money, seriesLabels }: Props) {
   return (
-    <div className="w-full rounded-xl border border-white/10 bg-[#1A1A1A] p-3">
+    <div className="w-full rounded-2xl border border-white/[0.08] bg-[#151518] p-4 shadow-[0_8px_32px_-14px_rgba(0,0,0,0.55)]">
       <ResponsiveContainer width="100%" height={280}>
         <LineChart data={data} margin={{ top: 8, right: 8, left: 4, bottom: 4 }}>
           <CartesianGrid stroke={GRID} strokeDasharray="3 3" />
@@ -66,7 +66,7 @@ export function DashboardPerformanceChart({ data, money, seriesLabels }: Props) 
           <Legend
             wrapperStyle={{ color: AXIS, fontSize: 12, paddingTop: 8 }}
             formatter={(value) => (
-              <span className="text-[#A3A3A3]">{value}</span>
+              <span className="text-[#A1A1AA]">{value}</span>
             )}
           />
           <Line
@@ -128,10 +128,10 @@ function PerformanceTooltip({
   );
   return (
     <div
-      className="rounded-md border border-white/10 px-3 py-2 text-xs shadow-lg"
+      className="rounded-xl border border-white/[0.08] px-3 py-2.5 text-xs shadow-[0_12px_40px_-8px_rgba(0,0,0,0.65)]"
       style={{ background: BG }}
     >
-      <p className="mb-1.5 font-medium text-[#A3A3A3]">{label}</p>
+      <p className="mb-1.5 font-medium text-[#A1A1AA]">{label}</p>
       <div className="space-y-0.5">
         {sorted.map((p) => (
           <p key={String(p.name)} style={{ color: p.color ?? AXIS }}>

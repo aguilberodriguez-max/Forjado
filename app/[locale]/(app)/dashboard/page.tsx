@@ -32,6 +32,9 @@ type DashboardPageProps = {
 
 const RANGE_KEYS = ["week", "month", "last12", "ytd"] as const;
 
+const cardSurface =
+  "rounded-2xl border border-white/[0.08] bg-[#151518] shadow-[0_8px_32px_-14px_rgba(0,0,0,0.55)]";
+
 export default async function DashboardPage({
   params,
   searchParams,
@@ -112,47 +115,73 @@ export default async function DashboardPage({
       : null;
 
   return (
-    <div className="min-h-screen min-h-dvh bg-[#0A0A0A] pb-24 text-white">
-      <header className="sticky top-0 z-20 border-b border-white/10 bg-[#0A0A0A]/95 backdrop-blur">
+    <div className="relative min-h-screen min-h-dvh bg-[#0B0B0D] pb-28 text-[#F3F3F1]">
+      <div
+        className="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(ellipse_100%_60%_at_50%_-20%,rgba(240,90,26,0.09),transparent_55%)]"
+        aria-hidden
+      />
+      <div
+        className="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(ellipse_80%_50%_at_100%_100%,rgba(255,255,255,0.03),transparent_50%)]"
+        aria-hidden
+      />
+
+      <header className="relative z-20 border-b border-white/[0.08] bg-[#0B0B0D]/90 backdrop-blur-md supports-[backdrop-filter]:bg-[#0B0B0D]/75">
         <div className="mx-auto flex h-14 w-full max-w-[400px] items-center justify-between px-4">
-          <p className="text-xl font-bold text-[#F26522]">{t("brandName")}</p>
-          <Link href={`/${locale}/settings`} aria-label={t("settings")}>
-            <Settings className="h-5 w-5 text-[#A3A3A3]" />
+          <p className="text-lg font-semibold tracking-tight text-[#F05A1A]">
+            {t("brandName")}
+          </p>
+          <Link
+            href={`/${locale}/settings`}
+            aria-label={t("settings")}
+            className="rounded-lg p-2 text-[#A1A1AA] transition-colors hover:bg-white/[0.06] hover:text-[#F3F3F1]"
+          >
+            <Settings className="h-5 w-5" />
           </Link>
         </div>
       </header>
 
-      <main className="mx-auto flex w-full max-w-[400px] flex-col gap-4 px-4 py-5">
+      <main className="relative z-10 mx-auto flex w-full max-w-[400px] flex-col gap-6 px-4 py-6">
         <DashboardGreeting ownerName={ownerName} />
 
         {hasDataError ? (
-          <div className="rounded-lg border border-[#EF4444]/40 bg-[#EF4444]/10 px-3 py-2 text-sm text-[#EF4444]">
+          <div
+            className={`${cardSurface} border-[#F87171]/35 bg-[#F87171]/[0.08] px-4 py-3 text-sm text-[#FCA5A5]`}
+          >
             {t("loadError")}
           </div>
         ) : null}
 
         {trialDaysLeft !== null ? (
-          <div className="rounded-lg border border-yellow-400/40 bg-yellow-400/10 px-3 py-2 text-sm text-yellow-300">
+          <div
+            className={`${cardSurface} border-amber-400/25 bg-amber-400/[0.07] px-4 py-3 text-sm text-amber-100/95`}
+          >
             {t("trialBanner", { days: trialDaysLeft })}
           </div>
         ) : null}
 
-        <section className="flex flex-col gap-2">
-          <p className="text-sm font-medium text-white">{t("chart.title")}</p>
-          <div className="flex flex-wrap gap-2">
-            {RANGE_KEYS.map((key) => (
-              <Link
-                key={key}
-                href={`/${locale}/dashboard?range=${key}`}
-                className={`rounded-md px-2.5 py-1.5 text-center text-xs ${
-                  chartRange === key
-                    ? "bg-[#F26522] font-medium text-white"
-                    : "bg-[#1A1A1A] text-[#A3A3A3]"
-                }`}
-              >
-                {t(`chart.period.${key}`)}
-              </Link>
-            ))}
+        <section className="flex flex-col gap-3">
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#A1A1AA]">
+            {t("chart.title")}
+          </p>
+          <div className="rounded-2xl border border-white/[0.08] bg-[#1C1C20] p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
+            <div className="grid grid-cols-4 gap-1">
+              {RANGE_KEYS.map((key) => {
+                const active = chartRange === key;
+                return (
+                  <Link
+                    key={key}
+                    href={`/${locale}/dashboard?range=${key}`}
+                    className={`flex min-h-[2.85rem] items-center justify-center rounded-xl px-1 py-2 text-center text-[10px] font-medium leading-snug transition-all sm:text-[11px] ${
+                      active
+                        ? "bg-[#151518] text-[#F3F3F1] shadow-[0_2px_12px_-4px_rgba(0,0,0,0.5)] ring-1 ring-white/[0.06]"
+                        : "text-[#A1A1AA] hover:bg-white/[0.04] hover:text-[#F3F3F1]/90"
+                    }`}
+                  >
+                    {t(`chart.period.${key}`)}
+                  </Link>
+                );
+              })}
+            </div>
           </div>
           <DashboardPerformanceChart
             data={series}
@@ -165,31 +194,39 @@ export default async function DashboardPage({
           />
         </section>
 
-        <section className="rounded-xl border border-white/10 bg-[#1A1A1A] p-4">
-          <p className="text-sm text-[#A3A3A3]">{t("kpi.revenue")}</p>
-          <p className="mt-2 text-3xl font-bold text-[#F26522]">
+        <section className={`${cardSurface} p-5`}>
+          <p className="text-xs font-medium uppercase tracking-[0.12em] text-[#A1A1AA]">
+            {t("kpi.revenue")}
+          </p>
+          <p className="mt-3 text-4xl font-semibold tracking-tight tabular-nums text-[#F05A1A]">
             {formatCurrency(revenue, money)}
           </p>
         </section>
 
         <section className="grid grid-cols-2 gap-3">
-          <div className="rounded-xl border border-white/10 bg-[#1A1A1A] p-4">
-            <p className="text-sm text-[#A3A3A3]">{t("kpi.expenses")}</p>
-            <p className="mt-2 text-xl font-semibold text-[#EF4444]">
+          <div className={`${cardSurface} p-5`}>
+            <p className="text-xs font-medium uppercase tracking-[0.12em] text-[#A1A1AA]">
+              {t("kpi.expenses")}
+            </p>
+            <p className="mt-3 text-2xl font-semibold tracking-tight tabular-nums text-[#F87171]">
               {formatCurrency(expenses, money)}
             </p>
           </div>
-          <div className="rounded-xl border border-white/10 bg-[#1A1A1A] p-4">
-            <p className="text-sm text-[#A3A3A3]">{t("kpi.profit")}</p>
-            <p className="mt-2 text-xl font-semibold text-[#22C55E]">
+          <div className={`${cardSurface} p-5`}>
+            <p className="text-xs font-medium uppercase tracking-[0.12em] text-[#A1A1AA]">
+              {t("kpi.profit")}
+            </p>
+            <p className="mt-3 text-2xl font-semibold tracking-tight tabular-nums text-[#2ED47A]">
               {formatCurrency(profit, money)}
             </p>
           </div>
         </section>
 
-        <section className="rounded-xl border border-white/10 bg-[#1A1A1A] p-4">
-          <p className="text-sm text-[#A3A3A3]">{t("outstanding.title")}</p>
-          <p className="mt-1 text-base">
+        <section className={`${cardSurface} p-5`}>
+          <p className="text-xs font-medium uppercase tracking-[0.12em] text-[#A1A1AA]">
+            {t("outstanding.title")}
+          </p>
+          <p className="mt-2 text-base font-medium leading-relaxed text-[#F3F3F1]">
             {t("outstanding.summary", {
               count: outstandingCount,
               total: formatCurrency(outstandingTotal, money),
@@ -197,16 +234,21 @@ export default async function DashboardPage({
           </p>
         </section>
 
-        <section className="rounded-xl border border-white/10 bg-[#1A1A1A] p-4">
-          <h2 className="text-base font-semibold">{t("recentActivity.title")}</h2>
-          <div className="mt-3 space-y-2">
+        <section className={`${cardSurface} p-5`}>
+          <h2 className="text-base font-semibold tracking-tight text-[#F3F3F1]">
+            {t("recentActivity.title")}
+          </h2>
+          <div className="mt-4 space-y-2">
             {(eventsResult.data ?? []).length === 0 ? (
-              <p className="text-sm text-[#A3A3A3]">{t("recentActivity.empty")}</p>
+              <p className="text-sm text-[#A1A1AA]">{t("recentActivity.empty")}</p>
             ) : (
               eventsResult.data?.map((event) => (
-                <div key={event.id} className="rounded-md bg-white/5 px-3 py-2">
-                  <p className="text-sm">{event.description}</p>
-                  <p className="text-xs text-[#A3A3A3]">
+                <div
+                  key={event.id}
+                  className="rounded-xl border border-white/[0.06] bg-[#1C1C20] px-3.5 py-3"
+                >
+                  <p className="text-sm leading-snug text-[#F3F3F1]">{event.description}</p>
+                  <p className="mt-1.5 text-xs text-[#A1A1AA]">
                     {new Date(event.created_at).toLocaleString(locale)}
                   </p>
                 </div>
@@ -216,20 +258,22 @@ export default async function DashboardPage({
         </section>
 
         <section className="grid grid-cols-2 gap-3">
-          <h2 className="col-span-2 text-base font-semibold">{t("quickActions.title")}</h2>
+          <h2 className="col-span-2 text-xs font-semibold uppercase tracking-[0.14em] text-[#A1A1AA]">
+            {t("quickActions.title")}
+          </h2>
           <Link
             href={`/${locale}/estimates/new`}
-            className="flex h-11 items-center justify-center gap-2 rounded-md bg-[#F26522] text-sm font-medium text-white"
+            className="flex min-h-12 items-center justify-center gap-1.5 rounded-xl bg-[#F05A1A] px-2 text-center text-xs font-semibold text-white shadow-[0_4px_24px_-6px_rgba(240,90,26,0.55)] transition-[transform,box-shadow] hover:bg-[#E04F15] hover:shadow-[0_6px_28px_-4px_rgba(240,90,26,0.6)] active:scale-[0.99] sm:text-sm"
           >
-            <Plus className="h-4 w-4" />
-            {t("quickActions.newEstimate")}
+            <Plus className="h-4 w-4 shrink-0" strokeWidth={2.25} />
+            <span className="leading-tight">{t("quickActions.newEstimate")}</span>
           </Link>
           <Link
             href={`/${locale}/expenses`}
-            className="flex h-11 items-center justify-center gap-2 rounded-md border border-[#F26522] bg-transparent text-sm font-medium text-[#F26522]"
+            className="flex min-h-12 items-center justify-center gap-1.5 rounded-xl border border-[#F05A1A]/35 bg-[#1C1C20] px-2 text-center text-xs font-semibold text-[#F05A1A] shadow-[0_4px_20px_-8px_rgba(0,0,0,0.4)] transition-colors hover:border-[#F05A1A]/55 hover:bg-[#252528] active:scale-[0.99] sm:text-sm"
           >
-            <Plus className="h-4 w-4" />
-            {t("quickActions.addExpense")}
+            <Plus className="h-4 w-4 shrink-0" strokeWidth={2.25} />
+            <span className="leading-tight">{t("quickActions.addExpense")}</span>
           </Link>
         </section>
       </main>
